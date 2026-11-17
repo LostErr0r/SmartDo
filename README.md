@@ -1,7 +1,7 @@
 <div align="center">
 
 # 📱 SmartDo
-### Умные заметки, списки задач и памятные даты в стиле Apple для Android
+### Умные заметки, списки задач и памятные даты для Android
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0+-7F52FF.svg?style=for-the-badge&logo=kotlin&logoColor=white)](https://kotlinlang.org)
 [![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4.svg?style=for-the-badge&logo=android&logoColor=white)](https://developer.android.com/jetpack/compose)
