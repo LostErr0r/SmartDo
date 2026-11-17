@@ -112,7 +112,7 @@ SmartDo
 
 1. **Клонируйте репозиторий:**
    ```bash
-   git clone https://github.com/ВАШ_ЛОГИН/SmartDo.git
+   git clone https://github.com/LostErr0r/SmartDo.git
    cd SmartDo
    ```
 
