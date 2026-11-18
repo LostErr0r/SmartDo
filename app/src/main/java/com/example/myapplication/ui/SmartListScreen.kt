@@ -132,6 +132,7 @@ fun SmartListScreen(
                         SmartTaskItemCard(
                             item = item,
                             onToggle = { viewModel.toggleTaskGlobal(item.task.id) },
+                            onToggleSubtask = { subId -> viewModel.toggleSubtaskGlobal(item.task.id, subId) },
                             onEdit = { editingTaskWithCategory = item },
                             onDelete = { viewModel.deleteTaskGlobal(item.task.id) }
                         )
@@ -154,6 +155,7 @@ fun SmartListScreen(
                         SmartTaskItemCard(
                             item = item,
                             onToggle = { viewModel.toggleTaskGlobal(item.task.id) },
+                            onToggleSubtask = { subId -> viewModel.toggleSubtaskGlobal(item.task.id, subId) },
                             onEdit = { editingTaskWithCategory = item },
                             onDelete = { viewModel.deleteTaskGlobal(item.task.id) }
                         )
@@ -171,8 +173,9 @@ fun SmartListScreen(
             initialPriority = item.task.priority,
             initialDeadlineMs = item.task.deadlineMs,
             initialReminderMinutes = item.task.reminderMinutesBefore,
+            initialSubtasks = item.task.subtasks,
             confirmButtonText = "Сохранить",
-            onConfirm = { title, desc, priority, deadline, reminder ->
+            onConfirm = { title, desc, priority, deadline, reminder, subtasks ->
                 viewModel.updateTask(
                     item.category.id,
                     item.task.id,
@@ -180,7 +183,8 @@ fun SmartListScreen(
                     desc,
                     priority,
                     deadline,
-                    reminder
+                    reminder,
+                    subtasks
                 )
                 editingTaskWithCategory = null
             },
@@ -193,6 +197,7 @@ fun SmartListScreen(
 fun SmartTaskItemCard(
     item: TaskWithCategory,
     onToggle: () -> Unit,
+    onToggleSubtask: (Long) -> Unit = {},
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
@@ -220,6 +225,7 @@ fun SmartTaskItemCard(
         SwipeableTaskCard(
             task = item.task,
             onToggle = onToggle,
+            onToggleSubtask = onToggleSubtask,
             onEdit = onEdit,
             onDelete = onDelete
         )

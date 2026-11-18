@@ -17,17 +17,16 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -140,15 +139,14 @@ fun calculateAge(year: Int?, day: Int, month: Int): Int? {
 @Composable
 fun RemindersScreen(
     viewModel: TaskViewModel = viewModel(),
-    isDarkTheme: Boolean = false,
-    onToggleTheme: () -> Unit = {},
     onNotificationsClick: () -> Unit = {},
     onListsClick: () -> Unit = {},
-    onArchiveClick: () -> Unit = {}
+    onArchiveClick: () -> Unit = {},
+    onStatsClick: () -> Unit = {},
+    onSettingsClick: () -> Unit = {}
 ) {
     val appData by viewModel.appData.collectAsStateWithLifecycle()
     var menuExpanded by remember { mutableStateOf(false) }
-    var showAboutDialog by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf(ReminderFilter.ALL) }
 
@@ -241,16 +239,27 @@ fun RemindersScreen(
                                 }
                             )
 
-                            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
-
                             DropdownMenuItem(
-                                text = { Text("О приложении") },
+                                text = { Text("Статистика", fontWeight = FontWeight.SemiBold) },
                                 leadingIcon = {
-                                    Icon(Icons.Default.Info, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Icon(Icons.Default.TrendingUp, contentDescription = null, tint = Color(0xFF34C759))
                                 },
                                 onClick = {
                                     menuExpanded = false
-                                    showAboutDialog = true
+                                    onStatsClick()
+                                }
+                            )
+
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+
+                            DropdownMenuItem(
+                                text = { Text("Настройки") },
+                                leadingIcon = {
+                                    Icon(Icons.Default.Settings, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                                },
+                                onClick = {
+                                    menuExpanded = false
+                                    onSettingsClick()
                                 }
                             )
                         }
@@ -274,15 +283,6 @@ fun RemindersScreen(
                                 tint = MaterialTheme.colorScheme.onBackground
                             )
                         }
-                    }
-
-                    // Переключатель темы
-                    IconButton(onClick = onToggleTheme) {
-                        Icon(
-                            if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
-                            contentDescription = "Сменить тему",
-                            tint = if (isDarkTheme) Color(0xFFFFD60A) else MaterialTheme.colorScheme.onBackground
-                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -450,10 +450,6 @@ fun RemindersScreen(
                 }
             }
         }
-    }
-
-    if (showAboutDialog) {
-        AboutAppDialog(onDismiss = { showAboutDialog = false })
     }
 
     if (showAddDialog) {

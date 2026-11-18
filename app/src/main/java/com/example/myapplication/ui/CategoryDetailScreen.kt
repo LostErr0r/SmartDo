@@ -1,6 +1,8 @@
 package com.example.myapplication.ui
 
 import android.content.Intent
+import android.media.AudioManager
+import android.media.ToneGenerator
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.fadeIn
@@ -14,11 +16,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteOutline
@@ -27,7 +30,6 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Flag
-import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
@@ -40,22 +42,30 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.TaskViewModel
 import com.example.myapplication.data.Category
+import com.example.myapplication.data.Subtask
 import com.example.myapplication.data.Task
-import com.example.myapplication.ui.theme.MyApplicationTheme
 import java.text.SimpleDateFormat
 import java.util.*
 
 private val dateTimeFormatter = SimpleDateFormat("d MMM, HH:mm", Locale("ru"))
 private val dateFormatter = SimpleDateFormat("d MMM yyyy", Locale("ru"))
+
+fun playAppClickSound() {
+    try {
+        val tone = ToneGenerator(AudioManager.STREAM_NOTIFICATION, 65)
+        tone.startTone(ToneGenerator.TONE_PROP_BEEP, 70)
+    } catch (_: Exception) {}
+}
 
 fun Task.deadlineLabel(): String? =
     deadlineMs?.let { dateTimeFormatter.format(Date(it)) }
@@ -76,13 +86,11 @@ fun Task.isDueToday(): Boolean {
     return dl in todayStart until todayEnd && !isDone
 }
 
-fun reminderLabel(minutes: Int?): String = when (minutes) {
-    null -> "Без уведомления"
-    0 -> "Вовремя"
-    15 -> "За 15 мин"
-    30 -> "За 30 мин"
-    60 -> "За 1 час"
-    1440 -> "За 1 день"
+fun reminderLabel(minutes: Int?): String = when {
+    minutes == null -> "Без уведомления"
+    minutes == 0 -> "Вовремя"
+    minutes % 1440 == 0 -> "За ${minutes / 1440} дн."
+    minutes % 60 == 0 -> "За ${minutes / 60} ч."
     else -> "За $minutes мин."
 }
 
@@ -91,8 +99,6 @@ fun reminderLabel(minutes: Int?): String = when (minutes) {
 fun CategoryDetailScreen(
     categoryId: Long,
     viewModel: TaskViewModel = viewModel(),
-    isDarkTheme: Boolean = false,
-    onToggleTheme: () -> Unit = {},
     onBack: () -> Unit
 ) {
     val appData by viewModel.appData.collectAsStateWithLifecycle()
@@ -100,19 +106,18 @@ fun CategoryDetailScreen(
 
     CategoryDetailContent(
         category = category,
-        isDarkTheme = isDarkTheme,
-        onToggleTheme = onToggleTheme,
         onBack = onBack,
         onEditCategory = { newName, newEmoji ->
             viewModel.updateCategory(categoryId, newName, newEmoji)
         },
-        onAddTask = { title, desc, priority, deadline, reminder ->
-            viewModel.addTask(categoryId, title, desc, priority, deadline, reminder)
+        onAddTask = { title, desc, priority, deadline, reminder, subtasks ->
+            viewModel.addTask(categoryId, title, desc, priority, deadline, reminder, subtasks)
         },
-        onEditTask = { taskId, newTitle, newDesc, newPriority, newDeadline, newReminder ->
-            viewModel.updateTask(categoryId, taskId, newTitle, newDesc, newPriority, newDeadline, newReminder)
+        onEditTask = { taskId, newTitle, newDesc, newPriority, newDeadline, newReminder, newSubtasks ->
+            viewModel.updateTask(categoryId, taskId, newTitle, newDesc, newPriority, newDeadline, newReminder, newSubtasks)
         },
         onToggleTask = { taskId -> viewModel.toggleTask(categoryId, taskId) },
+        onToggleSubtask = { taskId, subtaskId -> viewModel.toggleSubtask(categoryId, taskId, subtaskId) },
         onDeleteTask = { taskId -> viewModel.deleteTask(categoryId, taskId) }
     )
 }
@@ -121,13 +126,12 @@ fun CategoryDetailScreen(
 @Composable
 fun CategoryDetailContent(
     category: Category,
-    isDarkTheme: Boolean = false,
-    onToggleTheme: () -> Unit = {},
     onBack: () -> Unit,
     onEditCategory: (newName: String, newEmoji: String) -> Unit,
-    onAddTask: (String, String, Int, Long?, Int?) -> Unit,
-    onEditTask: (taskId: Long, String, String, Int, Long?, Int?) -> Unit,
+    onAddTask: (String, String, Int, Long?, Int?, List<Subtask>) -> Unit,
+    onEditTask: (taskId: Long, String, String, Int, Long?, Int?, List<Subtask>) -> Unit,
     onToggleTask: (Long) -> Unit,
+    onToggleSubtask: (Long, Long) -> Unit,
     onDeleteTask: (Long) -> Unit
 ) {
     val context = LocalContext.current
@@ -199,6 +203,12 @@ fun CategoryDetailContent(
                                 activeTasks.forEach { task ->
                                     val deadline = task.deadlineLabel()?.let { " ($it)" } ?: ""
                                     appendLine("☐ ${task.title}$deadline")
+                                    if (task.subtasks.isNotEmpty()) {
+                                        task.subtasks.forEach { sub ->
+                                            val mark = if (sub.isDone) "  ✓" else "  •"
+                                            appendLine("$mark ${sub.title}")
+                                        }
+                                    }
                                 }
                             }
                             if (completedTasks.isNotEmpty()) {
@@ -219,14 +229,6 @@ fun CategoryDetailContent(
                         Icon(
                             Icons.Default.Share,
                             contentDescription = "Поделиться",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-
-                    IconButton(onClick = onToggleTheme) {
-                        Icon(
-                            if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
-                            contentDescription = "Сменить тему",
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -312,6 +314,7 @@ fun CategoryDetailContent(
                         SwipeableTaskCard(
                             task = task,
                             onToggle = { onToggleTask(task.id) },
+                            onToggleSubtask = { subId -> onToggleSubtask(task.id, subId) },
                             onEdit = { editingTask = task },
                             onDelete = { onDeleteTask(task.id) }
                         )
@@ -348,6 +351,7 @@ fun CategoryDetailContent(
                                 SwipeableTaskCard(
                                     task = task,
                                     onToggle = { onToggleTask(task.id) },
+                                    onToggleSubtask = { subId -> onToggleSubtask(task.id, subId) },
                                     onEdit = { editingTask = task },
                                     onDelete = { onDeleteTask(task.id) }
                                 )
@@ -367,9 +371,10 @@ fun CategoryDetailContent(
             initialPriority = 0,
             initialDeadlineMs = null,
             initialReminderMinutes = 15,
+            initialSubtasks = emptyList(),
             confirmButtonText = "Добавить",
-            onConfirm = { title, desc, priority, deadline, reminder ->
-                onAddTask(title, desc, priority, deadline, reminder)
+            onConfirm = { title, desc, priority, deadline, reminder, subtasks ->
+                onAddTask(title, desc, priority, deadline, reminder, subtasks)
                 showAddDialog = false
             },
             onDismiss = { showAddDialog = false }
@@ -384,9 +389,10 @@ fun CategoryDetailContent(
             initialPriority = task.priority,
             initialDeadlineMs = task.deadlineMs,
             initialReminderMinutes = task.reminderMinutesBefore,
+            initialSubtasks = task.subtasks,
             confirmButtonText = "Сохранить",
-            onConfirm = { title, desc, priority, deadline, reminder ->
-                onEditTask(task.id, title, desc, priority, deadline, reminder)
+            onConfirm = { title, desc, priority, deadline, reminder, subtasks ->
+                onEditTask(task.id, title, desc, priority, deadline, reminder, subtasks)
                 editingTask = null
             },
             onDismiss = { editingTask = null }
@@ -414,23 +420,27 @@ fun CategoryDetailContent(
 fun SwipeableTaskCard(
     task: Task,
     onToggle: () -> Unit,
+    onToggleSubtask: (Long) -> Unit = {},
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
     val haptic = LocalHapticFeedback.current
+    val soundOn = LocalSoundEnabled.current
+    val hapticsOn = LocalHapticsEnabled.current
 
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
             when (value) {
                 SwipeToDismissBoxValue.StartToEnd -> {
                     // Смахнули вправо -> завершить / возобновить
-                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    if (hapticsOn) haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    if (soundOn) playAppClickSound()
                     onToggle()
                     false
                 }
                 SwipeToDismissBoxValue.EndToStart -> {
                     // Смахнули влево -> удалить
-                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    if (hapticsOn) haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     onDelete()
                     true
                 }
@@ -482,6 +492,7 @@ fun SwipeableTaskCard(
         AppleTaskCard(
             task = task,
             onToggle = onToggle,
+            onToggleSubtask = onToggleSubtask,
             onEdit = onEdit,
             onDelete = onDelete
         )
@@ -492,12 +503,15 @@ fun SwipeableTaskCard(
 fun AppleTaskCard(
     task: Task,
     onToggle: () -> Unit,
+    onToggleSubtask: (Long) -> Unit = {},
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
     val overdue = task.isOverdue()
     val dueToday = task.isDueToday()
     val haptic = LocalHapticFeedback.current
+    val soundOn = LocalSoundEnabled.current
+    val hapticsOn = LocalHapticsEnabled.current
 
     val cardBg = when {
         task.isDone -> MaterialTheme.colorScheme.surface.copy(alpha = 0.6f)
@@ -515,127 +529,205 @@ fun AppleTaskCard(
             if (overdue) MaterialTheme.colorScheme.error.copy(alpha = 0.4f)
             else MaterialTheme.colorScheme.outline.copy(alpha = 0.25f)
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.5.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(horizontal = 14.dp, vertical = 12.dp)
         ) {
-            AppleCircularCheckbox(
-                checked = task.isDone,
-                onCheckedChange = {
-                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    onToggle()
-                }
-            )
-
-            Spacer(Modifier.width(12.dp))
-
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { onEdit() }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    // Индикатор приоритета
-                    if (task.priority > 0 && !task.isDone) {
-                        val prioColor = if (task.priority == 2) Color(0xFFFF3B30) else Color(0xFFFF9500)
-                        val prioText = if (task.priority == 2) "!!!" else "!!"
-                        Text(
-                            text = prioText,
-                            color = prioColor,
-                            fontWeight = FontWeight.Black,
-                            fontSize = 13.sp,
-                            modifier = Modifier.padding(end = 4.dp)
-                        )
+                AppleCircularCheckbox(
+                    checked = task.isDone,
+                    onCheckedChange = {
+                        if (hapticsOn) haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        if (soundOn) playAppClickSound()
+                        onToggle()
                     }
+                )
 
-                    Text(
-                        text = task.title,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = if (task.isDone) FontWeight.Normal else FontWeight.Medium,
-                        textDecoration = if (task.isDone) TextDecoration.LineThrough else TextDecoration.None,
-                        color = if (task.isDone)
-                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                        else
-                            MaterialTheme.colorScheme.onSurface
-                    )
-                }
+                Spacer(Modifier.width(12.dp))
 
-                // Описание / Заметка задачи (если есть)
-                if (task.description.isNotBlank()) {
-                    Spacer(Modifier.height(2.dp))
-                    Text(
-                        text = task.description,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-
-                task.deadlineLabel()?.let { label ->
-                    Spacer(Modifier.height(3.dp))
-                    val labelColor = when {
-                        task.isDone -> MaterialTheme.colorScheme.onSurfaceVariant
-                        overdue     -> MaterialTheme.colorScheme.error
-                        dueToday    -> MaterialTheme.colorScheme.primary
-                        else        -> MaterialTheme.colorScheme.onSurfaceVariant
-                    }
-                    val prefix = when {
-                        task.isDone -> "Завершено: "
-                        overdue     -> "Просрочено: "
-                        dueToday    -> "Сегодня: "
-                        else        -> ""
-                    }
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Text(
-                            text = "$prefix$label",
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = if (overdue) FontWeight.Bold else FontWeight.Normal,
-                            color = labelColor
-                        )
-
-                        if (!task.isDone && task.reminderMinutesBefore != null) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { onEdit() }
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        // Индикатор приоритета
+                        if (task.priority > 0 && !task.isDone) {
+                            val prioColor = if (task.priority == 2) Color(0xFFFF3B30) else Color(0xFFFF9500)
+                            val prioText = if (task.priority == 2) "!!!" else "!!"
                             Text(
-                                text = "• 🔔 ${reminderLabel(task.reminderMinutesBefore)}",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
+                                text = prioText,
+                                color = prioColor,
+                                fontWeight = FontWeight.Black,
+                                fontSize = 13.sp,
+                                modifier = Modifier.padding(end = 4.dp)
                             )
                         }
+
+                        Text(
+                            text = task.title,
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = if (task.isDone) FontWeight.Normal else FontWeight.Medium,
+                            textDecoration = if (task.isDone) TextDecoration.LineThrough else TextDecoration.None,
+                            color = if (task.isDone)
+                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                            else
+                                MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
+                    // Описание / Заметка задачи (если есть)
+                    if (task.description.isNotBlank()) {
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            text = task.description,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+
+                    task.deadlineLabel()?.let { label ->
+                        Spacer(Modifier.height(3.dp))
+                        val labelColor = when {
+                            task.isDone -> MaterialTheme.colorScheme.onSurfaceVariant
+                            overdue     -> MaterialTheme.colorScheme.error
+                            dueToday    -> MaterialTheme.colorScheme.primary
+                            else        -> MaterialTheme.colorScheme.onSurfaceVariant
+                        }
+                        val prefix = when {
+                            task.isDone -> "Завершено: "
+                            overdue     -> "Просрочено: "
+                            dueToday    -> "Сегодня: "
+                            else        -> ""
+                        }
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                text = "$prefix$label",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = if (overdue) FontWeight.Bold else FontWeight.Normal,
+                                color = labelColor
+                            )
+
+                            if (!task.isDone && task.reminderMinutesBefore != null) {
+                                Text(
+                                    text = "• 🔔 ${reminderLabel(task.reminderMinutesBefore)}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(
+                        onClick = onEdit,
+                        modifier = Modifier.size(34.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Edit,
+                            contentDescription = "Редактировать",
+                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f),
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+
+                    IconButton(
+                        onClick = onDelete,
+                        modifier = Modifier.size(34.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.DeleteOutline,
+                            contentDescription = "Удалить",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                            modifier = Modifier.size(19.dp)
+                        )
                     }
                 }
             }
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(
-                    onClick = onEdit,
-                    modifier = Modifier.size(34.dp)
+            // Блок чек-листа (подзадач) внутри карточки
+            if (task.subtasks.isNotEmpty()) {
+                val doneSub = task.subtasks.count { it.isDone }
+                val totalSub = task.subtasks.size
+                val subProgress = if (totalSub > 0) doneSub.toFloat() / totalSub else 0f
+
+                Spacer(Modifier.height(8.dp))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth().padding(start = 36.dp)
                 ) {
-                    Icon(
-                        Icons.Default.Edit,
-                        contentDescription = "Редактировать",
-                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f),
-                        modifier = Modifier.size(18.dp)
+                    LinearProgressIndicator(
+                        progress = { subProgress },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(4.dp)
+                            .clip(RoundedCornerShape(2.dp)),
+                        color = if (doneSub == totalSub) Color(0xFF34C759) else MaterialTheme.colorScheme.primary,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                    Text(
+                        text = "$doneSub/$totalSub",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
-                IconButton(
-                    onClick = onDelete,
-                    modifier = Modifier.size(34.dp)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 36.dp, top = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Icon(
-                        Icons.Default.DeleteOutline,
-                        contentDescription = "Удалить",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                        modifier = Modifier.size(19.dp)
-                    )
+                    task.subtasks.forEach { sub ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(6.dp))
+                                .clickable {
+                                    if (hapticsOn) haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                    if (soundOn) playAppClickSound()
+                                    onToggleSubtask(sub.id)
+                                }
+                                .padding(vertical = 2.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(16.dp)
+                                    .clip(CircleShape)
+                                    .background(if (sub.isDone) MaterialTheme.colorScheme.primary else Color.Transparent)
+                                    .border(1.5.dp, if (sub.isDone) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.5f), CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (sub.isDone) {
+                                    Icon(Icons.Default.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(10.dp))
+                                }
+                            }
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                text = sub.title,
+                                style = MaterialTheme.typography.bodySmall,
+                                textDecoration = if (sub.isDone) TextDecoration.LineThrough else TextDecoration.None,
+                                color = if (sub.isDone) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f) else MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -685,13 +777,16 @@ fun TaskDialog(
     initialPriority: Int = 0,
     initialDeadlineMs: Long?,
     initialReminderMinutes: Int?,
+    initialSubtasks: List<Subtask> = emptyList(),
     confirmButtonText: String,
-    onConfirm: (title: String, description: String, priority: Int, deadlineMs: Long?, reminderMinutes: Int?) -> Unit,
+    onConfirm: (title: String, description: String, priority: Int, deadlineMs: Long?, reminderMinutes: Int?, subtasks: List<Subtask>) -> Unit,
     onDismiss: () -> Unit
 ) {
     var title by remember { mutableStateOf(initialTitle) }
     var description by remember { mutableStateOf(initialDescription) }
     var priority by remember { mutableIntStateOf(initialPriority) }
+    var subtasks by remember { mutableStateOf(initialSubtasks) }
+    var newSubtaskText by remember { mutableStateOf("") }
     var hasDeadline by remember { mutableStateOf(initialDeadlineMs != null) }
 
     val cal = remember(initialDeadlineMs) {
@@ -709,6 +804,31 @@ fun TaskDialog(
     var selectedMinute by remember { mutableIntStateOf(cal.get(Calendar.MINUTE)) }
     var selectedDateMillis by remember { mutableStateOf<Long?>(cal.timeInMillis) }
     var selectedReminder by remember { mutableStateOf<Int?>(initialReminderMinutes ?: 15) }
+
+    // Своё время напоминания: распознаём, не совпадает ли начальное значение с пресетами
+    val presetReminders = listOf(0, 15, 30, 60, 1440)
+    var customReminderText by remember {
+        mutableStateOf(
+            if (initialReminderMinutes != null && initialReminderMinutes !in presetReminders) {
+                when {
+                    initialReminderMinutes % 1440 == 0 -> (initialReminderMinutes / 1440).toString()
+                    initialReminderMinutes % 60 == 0 -> (initialReminderMinutes / 60).toString()
+                    else -> initialReminderMinutes.toString()
+                }
+            } else ""
+        )
+    }
+    var customUnit by remember {
+        mutableIntStateOf(
+            if (initialReminderMinutes != null && initialReminderMinutes !in presetReminders) {
+                when {
+                    initialReminderMinutes % 1440 == 0 -> 1440
+                    initialReminderMinutes % 60 == 0 -> 60
+                    else -> 1
+                }
+            } else 1
+        )
+    }
 
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
@@ -768,7 +888,10 @@ fun TaskDialog(
             containerColor = MaterialTheme.colorScheme.surface,
             title = { Text(dialogTitle, fontWeight = FontWeight.Bold, fontSize = 20.sp) },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     OutlinedTextField(
                         value = title,
                         onValueChange = { title = it },
@@ -783,55 +906,134 @@ fun TaskDialog(
                         onValueChange = { description = it },
                         label = { Text("Заметка (ссылка, адрес, детали...)") },
                         minLines = 2,
-                        maxLines = 3,
+                        maxLines = 2,
                         shape = RoundedCornerShape(14.dp),
                         modifier = Modifier.fillMaxWidth()
                     )
 
                     // Приоритеты: 0 (Обычный), 1 (Средний !!), 2 (Высокий !!!)
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text(
                             "Приоритет:",
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Spacer(Modifier.width(4.dp))
-                        listOf(
-                            0 to "Обычный",
-                            1 to "!! Средний",
-                            2 to "!!! Высокий"
-                        ).forEach { (prio, label) ->
-                            FilterChip(
-                                selected = priority == prio,
-                                onClick = { priority = prio },
-                                shape = RoundedCornerShape(8.dp),
-                                label = { Text(label, fontSize = 11.sp) }
-                            )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            listOf(
+                                Triple(0, "Обычный", MaterialTheme.colorScheme.onSurfaceVariant),
+                                Triple(1, "!!", Color(0xFFFF9500)),
+                                Triple(2, "!!!", Color(0xFFFF3B30))
+                            ).forEach { (level, label, color) ->
+                                val isSelected = priority == level
+                                FilterChip(
+                                    selected = isSelected,
+                                    onClick = { priority = level },
+                                    modifier = Modifier.weight(1f),
+                                    label = {
+                                        Text(
+                                            label,
+                                            fontSize = 12.sp,
+                                            maxLines = 1,
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                            color = if (isSelected) color else MaterialTheme.colorScheme.onSurfaceVariant,
+                                            textAlign = TextAlign.Center,
+                                            modifier = Modifier.fillMaxWidth()
+                                        )
+                                    },
+                                    shape = RoundedCornerShape(10.dp)
+                                )
+                            }
                         }
                     }
 
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.25f))
+                    // Чек-лист (Подзадачи)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))
+                            .padding(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            "Чек-лист / Подзадачи (${subtasks.size})",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
 
-                    Text(
-                        "Срок выполнения",
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                        subtasks.forEach { sub ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("• ", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                                Text(
+                                    text = sub.title,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    modifier = Modifier.weight(1f),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                IconButton(
+                                    onClick = { subtasks = subtasks.filter { it.id != sub.id } },
+                                    modifier = Modifier.size(22.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Default.Clear,
+                                        contentDescription = "Удалить пункт",
+                                        tint = MaterialTheme.colorScheme.error,
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                }
+                            }
+                        }
 
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            OutlinedTextField(
+                                value = newSubtaskText,
+                                onValueChange = { newSubtaskText = it },
+                                placeholder = { Text("Добавить пункт...", fontSize = 12.sp) },
+                                singleLine = true,
+                                shape = RoundedCornerShape(10.dp),
+                                modifier = Modifier.weight(1f)
+                            )
+                            Spacer(Modifier.width(4.dp))
+                            IconButton(
+                                onClick = {
+                                    if (newSubtaskText.isNotBlank()) {
+                                        subtasks = subtasks + Subtask(title = newSubtaskText.trim())
+                                        newSubtaskText = ""
+                                    }
+                                },
+                                enabled = newSubtaskText.isNotBlank()
+                            ) {
+                                Icon(
+                                    Icons.Default.Add,
+                                    contentDescription = "Добавить",
+                                    tint = if (newSubtaskText.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                                )
+                            }
+                        }
+                    }
+
+                    // Срок и напоминание
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         OutlinedButton(
                             onClick = { showDatePicker = true },
-                            modifier = Modifier.weight(1.2f),
-                            shape = RoundedCornerShape(12.dp)
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 8.dp)
                         ) {
                             Icon(Icons.Default.DateRange, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(6.dp))
@@ -840,20 +1042,24 @@ fun TaskDialog(
                                     dateFormatter.format(Date(selectedDateMillis!!))
                                 else
                                     "Выбрать дату",
-                                fontSize = 13.sp
+                                fontSize = 13.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
 
                         OutlinedButton(
                             onClick = { showTimePicker = true },
-                            modifier = Modifier.weight(0.9f),
-                            shape = RoundedCornerShape(12.dp)
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 8.dp)
                         ) {
                             Icon(Icons.Default.Schedule, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(6.dp))
                             Text(
                                 String.format(Locale.getDefault(), "%02d:%02d", selectedHour, selectedMinute),
-                                fontSize = 13.sp
+                                fontSize = 13.sp,
+                                maxLines = 1
                             )
                         }
                     }
@@ -866,30 +1072,98 @@ fun TaskDialog(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
 
-                        val chipsRow1 = listOf(0, 15, 30)
-                        val chipsRow2 = listOf(60, 1440, null)
+                        val isCustomReminder = customReminderText.isNotBlank()
+                        val reminderPresets: List<Pair<Int?, String>> = listOf(
+                            0 to "Вовремя",
+                            15 to "15 мин",
+                            30 to "30 мин",
+                            60 to "1 час",
+                            1440 to "1 день",
+                            null to "Выкл"
+                        )
 
                         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                chipsRow1.forEach { minutes ->
-                                    val isSelected = selectedReminder == minutes
-                                    FilterChip(
-                                        selected = isSelected,
-                                        onClick = { selectedReminder = minutes },
-                                        shape = RoundedCornerShape(10.dp),
-                                        label = { Text(reminderLabel(minutes), fontSize = 12.sp) },
-                                        modifier = Modifier.weight(1f)
-                                    )
+                            // Пресеты — две ровные строки по три чипа
+                            reminderPresets.chunked(3).forEach { rowItems ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    rowItems.forEach { (minutes, label) ->
+                                        val isSelected = !isCustomReminder && selectedReminder == minutes
+                                        FilterChip(
+                                            selected = isSelected,
+                                            onClick = {
+                                                customReminderText = ""
+                                                selectedReminder = minutes
+                                            },
+                                            shape = RoundedCornerShape(10.dp),
+                                            label = {
+                                                Text(
+                                                    label,
+                                                    fontSize = 12.sp,
+                                                    maxLines = 1,
+                                                    textAlign = TextAlign.Center,
+                                                    modifier = Modifier.fillMaxWidth()
+                                                )
+                                            },
+                                            modifier = Modifier.weight(1f)
+                                        )
+                                    }
                                 }
                             }
-                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                chipsRow2.forEach { minutes ->
-                                    val isSelected = selectedReminder == minutes
+
+                            // Своё время: число + единица измерения
+                            OutlinedTextField(
+                                value = customReminderText,
+                                onValueChange = { input ->
+                                    val digits = input.filter { it.isDigit() }.take(4)
+                                    customReminderText = digits
+                                    val number = digits.toIntOrNull()
+                                    if (number != null && number > 0) {
+                                        selectedReminder = number * customUnit
+                                    }
+                                },
+                                placeholder = { Text("Своё время (число)", fontSize = 12.sp) },
+                                leadingIcon = {
+                                    Icon(Icons.Default.Schedule, contentDescription = null, modifier = Modifier.size(16.dp))
+                                },
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                listOf(
+                                    "Минуты" to 1,
+                                    "Часы" to 60,
+                                    "Дни" to 1440
+                                ).forEach { (unitLabel, mult) ->
+                                    val isSelected = isCustomReminder && customUnit == mult
                                     FilterChip(
                                         selected = isSelected,
-                                        onClick = { selectedReminder = minutes },
+                                        enabled = isCustomReminder,
+                                        onClick = {
+                                            customUnit = mult
+                                            val number = customReminderText.toIntOrNull()
+                                            if (number != null && number > 0) {
+                                                selectedReminder = number * mult
+                                            }
+                                        },
                                         shape = RoundedCornerShape(10.dp),
-                                        label = { Text(reminderLabel(minutes), fontSize = 12.sp) },
+                                        label = {
+                                            Text(
+                                                unitLabel,
+                                                fontSize = 12.sp,
+                                                maxLines = 1,
+                                                textAlign = TextAlign.Center,
+                                                modifier = Modifier.fillMaxWidth()
+                                            )
+                                        },
                                         modifier = Modifier.weight(1f)
                                     )
                                 }
@@ -925,7 +1199,8 @@ fun TaskDialog(
                                 description,
                                 priority,
                                 computedDeadlineMs,
-                                if (hasDeadline) selectedReminder else null
+                                if (hasDeadline) selectedReminder else null,
+                                subtasks
                             )
                         }
                     },
@@ -938,35 +1213,6 @@ fun TaskDialog(
                     Text("Отмена", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
-        )
-    }
-}
-
-// ── Превью ────────────────────────────────────────────
-
-@Preview(showBackground = true)
-@Composable
-fun CategoryDetailPreview() {
-    MyApplicationTheme {
-        val now = System.currentTimeMillis()
-        CategoryDetailContent(
-            category = Category(
-                id = 1, name = "Покупки", emoji = "🛒",
-                tasks = listOf(
-                    Task(id = 1, title = "Молоко", description = "2.5% жирности", priority = 2, isDone = true, deadlineMs = now, reminderMinutesBefore = 0),
-                    Task(id = 2, title = "Хлеб", priority = 1, isDone = false, deadlineMs = now - 86_400_000, reminderMinutesBefore = 15),
-                    Task(id = 3, title = "Яблоки", isDone = false, deadlineMs = now + 2 * 86_400_000, reminderMinutesBefore = 60),
-                    Task(id = 4, title = "Без дедлайна", isDone = false)
-                )
-            ),
-            isDarkTheme = false,
-            onToggleTheme = {},
-            onBack = {},
-            onEditCategory = { _, _ -> },
-            onAddTask = { _, _, _, _, _ -> },
-            onEditTask = { _, _, _, _, _, _ -> },
-            onToggleTask = {},
-            onDeleteTask = {}
         )
     }
 }

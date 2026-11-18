@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.example.myapplication.widget.SmartDoWidgetProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -21,6 +22,13 @@ val appJson = Json {
 }
 
 @Serializable
+data class Subtask(
+    val id: Long = System.currentTimeMillis(),
+    val title: String,
+    val isDone: Boolean = false
+)
+
+@Serializable
 data class Task(
     val id: Long = System.currentTimeMillis(),
     val title: String,
@@ -28,7 +36,8 @@ data class Task(
     val priority: Int = 0, // 0 = обычный, 1 = средний 🟡, 2 = высокий 🔴
     val isDone: Boolean = false,
     val deadlineMs: Long? = null,
-    val reminderMinutesBefore: Int? = 0
+    val reminderMinutesBefore: Int? = 0,
+    val subtasks: List<Subtask> = emptyList()
 )
 
 @Serializable
@@ -49,7 +58,9 @@ data class ArchivedTask(
     val categoryName: String = "",
     val categoryEmoji: String = "📁",
     val reason: String = "deleted", // "deleted" или "completed"
-    val archivedAt: Long = System.currentTimeMillis()
+    val archivedAt: Long = System.currentTimeMillis(),
+    val priority: Int = 0,
+    val subtasks: List<Subtask> = emptyList()
 )
 
 @Serializable
@@ -81,7 +92,9 @@ data class AppData(
     val archivedTasks: List<ArchivedTask> = emptyList(),
     val notifications: List<AppNotification> = emptyList(),
     val specialReminders: List<SpecialReminder> = emptyList(),
-    val themeMode: String = "system"
+    val themeMode: String = "system",
+    val soundEnabled: Boolean = true,
+    val hapticsEnabled: Boolean = true
 )
 
 enum class SmartListType(val title: String, val emoji: String) {
@@ -92,6 +105,8 @@ enum class SmartListType(val title: String, val emoji: String) {
 }
 
 class TaskRepository(private val context: Context) {
+
+    fun getContext(): Context = context
 
     val appData: Flow<AppData> = context.dataStore.data.map { prefs ->
         val json = prefs[DATA_KEY] ?: "{}"
@@ -106,6 +121,9 @@ class TaskRepository(private val context: Context) {
         context.dataStore.edit { prefs ->
             prefs[DATA_KEY] = appJson.encodeToString(data)
         }
+        try {
+            SmartDoWidgetProvider.updateAllWidgets(context)
+        } catch (_: Exception) {}
     }
 
     suspend fun addNotification(title: String, message: String) {

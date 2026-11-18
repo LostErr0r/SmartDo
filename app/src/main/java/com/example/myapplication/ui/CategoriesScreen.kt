@@ -2,6 +2,7 @@ package com.example.myapplication.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,14 +15,13 @@ import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -49,11 +49,11 @@ val CATEGORY_EMOJIS = listOf(
 @Composable
 fun CategoriesScreen(
     viewModel: TaskViewModel = viewModel(),
-    isDarkTheme: Boolean = false,
-    onToggleTheme: () -> Unit = {},
     onNotificationsClick: () -> Unit = {},
     onArchiveClick: () -> Unit = {},
     onRemindersClick: () -> Unit = {},
+    onStatsClick: () -> Unit = {},
+    onSettingsClick: () -> Unit = {},
     onSmartListClick: (SmartListType) -> Unit = {},
     onCategoryClick: (Long) -> Unit
 ) {
@@ -61,18 +61,16 @@ fun CategoriesScreen(
     var showAddDialog by remember { mutableStateOf(false) }
     var editingCategory by remember { mutableStateOf<Category?>(null) }
     var searchQuery by remember { mutableStateOf("") }
-    var showAboutDialog by remember { mutableStateOf(false) }
 
     CategoriesContent(
         appData = appData,
-        isDarkTheme = isDarkTheme,
         searchQuery = searchQuery,
         onSearchQueryChange = { searchQuery = it },
-        onToggleTheme = onToggleTheme,
         onNotificationsClick = onNotificationsClick,
         onArchiveClick = onArchiveClick,
         onRemindersClick = onRemindersClick,
-        onAboutClick = { showAboutDialog = true },
+        onStatsClick = onStatsClick,
+        onSettingsClick = onSettingsClick,
         onSmartListClick = onSmartListClick,
         onCategoryClick = onCategoryClick,
         onEditCategory = { category -> editingCategory = category },
@@ -107,24 +105,19 @@ fun CategoriesScreen(
             onDismiss = { editingCategory = null }
         )
     }
-
-    if (showAboutDialog) {
-        AboutAppDialog(onDismiss = { showAboutDialog = false })
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoriesContent(
     appData: AppData,
-    isDarkTheme: Boolean = false,
     searchQuery: String = "",
     onSearchQueryChange: (String) -> Unit = {},
-    onToggleTheme: () -> Unit = {},
     onNotificationsClick: () -> Unit = {},
     onArchiveClick: () -> Unit = {},
     onRemindersClick: () -> Unit = {},
-    onAboutClick: () -> Unit = {},
+    onStatsClick: () -> Unit = {},
+    onSettingsClick: () -> Unit = {},
     onSmartListClick: (SmartListType) -> Unit = {},
     onCategoryClick: (Long) -> Unit,
     onEditCategory: (Category) -> Unit,
@@ -208,6 +201,17 @@ fun CategoriesContent(
                             )
 
                             DropdownMenuItem(
+                                text = { Text("Статистика", fontWeight = FontWeight.SemiBold) },
+                                leadingIcon = {
+                                    Icon(Icons.Default.TrendingUp, contentDescription = null, tint = Color(0xFF34C759))
+                                },
+                                onClick = {
+                                    menuExpanded = false
+                                    onStatsClick()
+                                }
+                            )
+
+                            DropdownMenuItem(
                                 text = { Text("Архив", fontWeight = FontWeight.SemiBold) },
                                 leadingIcon = {
                                     Icon(Icons.Default.Archive, contentDescription = null, tint = Color(0xFFFF9500))
@@ -221,13 +225,13 @@ fun CategoriesContent(
                             HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
 
                             DropdownMenuItem(
-                                text = { Text("О приложении") },
+                                text = { Text("Настройки") },
                                 leadingIcon = {
-                                    Icon(Icons.Default.Info, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Icon(Icons.Default.Settings, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                                 },
                                 onClick = {
                                     menuExpanded = false
-                                    onAboutClick()
+                                    onSettingsClick()
                                 }
                             )
                         }
@@ -252,15 +256,6 @@ fun CategoriesContent(
                             )
                         }
                     }
-
-                    // Переключатель темы
-                    IconButton(onClick = onToggleTheme) {
-                        Icon(
-                            if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
-                            contentDescription = "Сменить тему",
-                            tint = if (isDarkTheme) Color(0xFFFFD60A) else MaterialTheme.colorScheme.onBackground
-                        )
-                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
@@ -273,30 +268,27 @@ fun CategoriesContent(
                 onClick = onAddClick,
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
-                shape = RoundedCornerShape(18.dp)
+                shape = RoundedCornerShape(20.dp),
+                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 4.dp)
             ) {
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = "Добавить список",
-                    modifier = Modifier.size(28.dp)
-                )
+                Icon(Icons.Default.Add, contentDescription = "Новый список")
             }
         }
-    ) { paddingValues ->
+    ) { padding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(padding)
                 .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(top = 4.dp, bottom = 80.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(top = 8.dp, bottom = 80.dp)
         ) {
             // Поисковая строка Apple Search
             item {
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = onSearchQueryChange,
-                    placeholder = { Text("Поиск задач и списков...") },
+                    placeholder = { Text("Поиск списков и задач...") },
                     leadingIcon = {
                         Icon(
                             Icons.Default.Search,
@@ -327,7 +319,7 @@ fun CategoriesContent(
                 )
             }
 
-            // Смарт-папки Apple Reminders
+            // Блок смарт-списков 2x2 (Только при отсутствии поиска)
             if (searchQuery.isBlank()) {
                 item {
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -335,59 +327,54 @@ fun CategoriesContent(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            AppleSmartCard(
-                                title = "Сегодня",
-                                emoji = "📅",
+                            SmartListCard(
+                                modifier = Modifier.weight(1f),
+                                type = SmartListType.TODAY,
                                 count = todayCount,
                                 accentColor = Color(0xFF007AFF),
-                                modifier = Modifier.weight(1f),
                                 onClick = { onSmartListClick(SmartListType.TODAY) }
                             )
-
-                            AppleSmartCard(
-                                title = "Запланировано",
-                                emoji = "⏰",
-                                count = scheduledCount,
-                                accentColor = Color(0xFFFF9500),
+                            SmartListCard(
                                 modifier = Modifier.weight(1f),
+                                type = SmartListType.SCHEDULED,
+                                count = scheduledCount,
+                                accentColor = Color(0xFFFF3B30),
                                 onClick = { onSmartListClick(SmartListType.SCHEDULED) }
                             )
                         }
-
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            AppleSmartCard(
-                                title = "Просрочено",
-                                emoji = "🔴",
-                                count = overdueCount,
-                                accentColor = Color(0xFFFF3B30),
+                            SmartListCard(
                                 modifier = Modifier.weight(1f),
-                                onClick = { onSmartListClick(SmartListType.OVERDUE) }
-                            )
-
-                            AppleSmartCard(
-                                title = "Все задачи",
-                                emoji = "📦",
+                                type = SmartListType.ALL,
                                 count = allActiveCount,
-                                accentColor = Color(0xFF5856D6),
-                                modifier = Modifier.weight(1f),
+                                accentColor = Color(0xFF8E8E93),
                                 onClick = { onSmartListClick(SmartListType.ALL) }
+                            )
+                            SmartListCard(
+                                modifier = Modifier.weight(1f),
+                                type = SmartListType.OVERDUE,
+                                count = overdueCount,
+                                accentColor = Color(0xFFFF9500),
+                                onClick = { onSmartListClick(SmartListType.OVERDUE) }
                             )
                         }
                     }
                 }
+            }
 
-                item {
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        "Мои категории",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                }
+            // Заголовок раздела «Мои списки»
+            item {
+                Text(
+                    text = "МОИ СПИСКИ",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                    letterSpacing = 0.8.sp,
+                    modifier = Modifier.padding(start = 4.dp, top = 6.dp)
+                )
             }
 
             if (filteredCategories.isEmpty()) {
@@ -399,8 +386,8 @@ fun CategoriesContent(
                         contentAlignment = Alignment.Center
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("🔍", fontSize = 44.sp)
-                            Spacer(Modifier.height(10.dp))
+                            Text("📁", fontSize = 48.sp)
+                            Spacer(Modifier.height(12.dp))
                             Text(
                                 if (searchQuery.isNotBlank()) "Ничего не найдено" else "Нет списков",
                                 style = MaterialTheme.typography.titleMedium,
@@ -409,8 +396,8 @@ fun CategoriesContent(
                             )
                             Spacer(Modifier.height(4.dp))
                             Text(
-                                if (searchQuery.isNotBlank()) "Попробуйте изменить запрос" else "Нажмите «+», чтобы создать категорию",
-                                style = MaterialTheme.typography.bodyMedium,
+                                if (searchQuery.isNotBlank()) "Попробуйте изменить поисковый запрос" else "Создайте первый список кнопкой «+»",
+                                style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -418,7 +405,7 @@ fun CategoriesContent(
                 }
             } else {
                 items(filteredCategories, key = { it.id }) { category ->
-                    CategoryCard(
+                    CategoryItemCard(
                         category = category,
                         onClick = { onCategoryClick(category.id) },
                         onEdit = { onEditCategory(category) },
@@ -430,22 +417,21 @@ fun CategoriesContent(
     }
 }
 
-// Карточка смарт-папки Apple Reminders
 @Composable
-fun AppleSmartCard(
-    title: String,
-    emoji: String,
+fun SmartListCard(
+    modifier: Modifier = Modifier,
+    type: SmartListType,
     count: Int,
     accentColor: Color,
-    modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     Card(
-        onClick = onClick,
-        modifier = modifier,
+        modifier = modifier
+            .clip(RoundedCornerShape(18.dp))
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.25f)),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(
@@ -456,34 +442,31 @@ fun AppleSmartCard(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top
             ) {
                 Box(
                     modifier = Modifier
-                        .size(34.dp)
-                        .clip(CircleShape),
+                        .size(38.dp)
+                        .clip(CircleShape)
+                        .background(accentColor.copy(alpha = 0.15f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Surface(
-                        color = accentColor.copy(alpha = 0.15f),
-                        modifier = Modifier.fillMaxSize()
-                    ) {}
-                    Text(emoji, fontSize = 18.sp)
+                    Text(type.emoji, fontSize = 20.sp)
                 }
 
                 Text(
                     text = "$count",
-                    fontSize = 24.sp,
+                    fontSize = 26.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
 
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(12.dp))
 
             Text(
-                text = title,
-                style = MaterialTheme.typography.labelLarge,
+                text = type.title,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -492,24 +475,22 @@ fun AppleSmartCard(
 }
 
 @Composable
-fun CategoryCard(
+fun CategoryItemCard(
     category: Category,
     onClick: () -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
-    val doneCount = category.tasks.count { it.isDone }
-    val totalCount = category.tasks.size
-    val overdueCount = category.tasks.count { it.isOverdue() }
+    val activeTasks = category.tasks.count { !it.isDone }
 
     Card(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(18.dp))
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Row(
@@ -520,88 +501,44 @@ fun CategoryCard(
         ) {
             Box(
                 modifier = Modifier
-                    .size(46.dp)
-                    .clip(RoundedCornerShape(14.dp)),
+                    .size(44.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)),
                 contentAlignment = Alignment.Center
             ) {
-                Surface(
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
-                    modifier = Modifier.fillMaxSize()
-                ) {}
                 Text(category.emoji, fontSize = 24.sp)
             }
 
             Spacer(Modifier.width(14.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = category.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    if (overdueCount > 0) {
-                        Spacer(Modifier.width(8.dp))
-                        Badge(containerColor = MaterialTheme.colorScheme.error) {
-                            Text(
-                                "! $overdueCount",
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 11.sp
-                            )
-                        }
-                    }
-                }
-
-                Spacer(Modifier.height(4.dp))
-
-                if (totalCount > 0) {
-                    Text(
-                        text = "$doneCount из $totalCount выполнено",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    LinearProgressIndicator(
-                        progress = { doneCount.toFloat() / totalCount },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(5.dp)
-                            .clip(CircleShape),
-                        color = MaterialTheme.colorScheme.primary,
-                        trackColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                } else {
-                    Text(
-                        text = "Задач нет",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                Text(
+                    text = category.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = if (activeTasks > 0) "$activeTasks задач(и)" else "Нет задач",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(
-                    onClick = onEdit,
-                    modifier = Modifier.size(34.dp)
-                ) {
+                IconButton(onClick = onEdit) {
                     Icon(
                         Icons.Default.Edit,
-                        contentDescription = "Изменить список",
-                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f),
-                        modifier = Modifier.size(19.dp)
+                        contentDescription = "Редактировать список",
+                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                        modifier = Modifier.size(20.dp)
                     )
                 }
-
-                IconButton(
-                    onClick = onDelete,
-                    modifier = Modifier.size(34.dp)
-                ) {
+                IconButton(onClick = onDelete) {
                     Icon(
                         Icons.Default.DeleteOutline,
                         contentDescription = "Удалить список",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f),
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -627,14 +564,10 @@ fun CategoryDialog(
         shape = RoundedCornerShape(24.dp),
         containerColor = MaterialTheme.colorScheme.surface,
         title = {
-            Text(
-                title,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
+            Text(title, fontWeight = FontWeight.Bold, fontSize = 20.sp)
         },
         text = {
-            Column {
+            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
@@ -643,37 +576,41 @@ fun CategoryDialog(
                     shape = RoundedCornerShape(14.dp),
                     modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(Modifier.height(16.dp))
+
                 Text(
-                    "Иконка",
+                    "Выберите иконку:",
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Spacer(Modifier.height(8.dp))
-                val rows = CATEGORY_EMOJIS.chunked(8)
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    rows.forEach { row ->
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            row.forEach { emoji ->
+
+                // Сетка эмодзи 4x4
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    CATEGORY_EMOJIS.chunked(4).forEach { rowEmojis ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            rowEmojis.forEach { emoji ->
                                 val isSelected = emoji == selectedEmoji
-                                OutlinedButton(
-                                    onClick = { selectedEmoji = emoji },
-                                    contentPadding = PaddingValues(0.dp),
-                                    modifier = Modifier.size(38.dp),
-                                    shape = RoundedCornerShape(10.dp),
-                                    border = BorderStroke(
-                                        if (isSelected) 2.dp else 1.dp,
-                                        if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-                                    ),
-                                    colors = ButtonDefaults.outlinedButtonColors(
-                                        containerColor = if (isSelected)
-                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-                                        else
-                                            MaterialTheme.colorScheme.surface
-                                    )
+                                Box(
+                                    modifier = Modifier
+                                        .size(46.dp)
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(
+                                            if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                                            else MaterialTheme.colorScheme.surfaceVariant
+                                        )
+                                        .border(
+                                            width = if (isSelected) 2.dp else 1.dp,
+                                            color = if (isSelected) MaterialTheme.colorScheme.primary
+                                            else MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+                                            shape = RoundedCornerShape(12.dp)
+                                        )
+                                        .clickable { selectedEmoji = emoji },
+                                    contentAlignment = Alignment.Center
                                 ) {
-                                    Text(emoji, fontSize = 18.sp)
+                                    Text(emoji, fontSize = 22.sp)
                                 }
                             }
                         }
@@ -683,7 +620,11 @@ fun CategoryDialog(
         },
         confirmButton = {
             Button(
-                onClick = { if (name.isNotBlank()) onConfirm(name, selectedEmoji) },
+                onClick = {
+                    if (name.isNotBlank()) {
+                        onConfirm(name.trim(), selectedEmoji)
+                    }
+                },
                 enabled = name.isNotBlank(),
                 shape = RoundedCornerShape(14.dp)
             ) {
@@ -696,39 +637,4 @@ fun CategoryDialog(
             }
         }
     )
-}
-
-// ── Превью ────────────────────────────────────────────
-
-@Preview(showBackground = true)
-@Composable
-fun CategoriesPreview() {
-    MyApplicationTheme {
-        CategoriesContent(
-            appData = AppData(
-                categories = listOf(
-                    Category(id = 1, name = "Покупки", emoji = "🛒",
-                        tasks = listOf(
-                            com.example.myapplication.data.Task(title = "Молоко", isDone = true),
-                            com.example.myapplication.data.Task(title = "Хлеб", isDone = false)
-                        )
-                    ),
-                    Category(id = 2, name = "Задачи", emoji = "📋")
-                )
-            ),
-            isDarkTheme = false,
-            searchQuery = "",
-            onSearchQueryChange = {},
-            onToggleTheme = {},
-            onNotificationsClick = {},
-            onArchiveClick = {},
-            onRemindersClick = {},
-            onAboutClick = {},
-            onSmartListClick = {},
-            onCategoryClick = {},
-            onEditCategory = {},
-            onDeleteCategory = {},
-            onAddClick = {}
-        )
-    }
 }

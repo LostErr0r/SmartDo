@@ -11,15 +11,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Cake
-import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.DeleteSweep
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material.icons.filled.Restore
+import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -44,17 +43,16 @@ private val archiveDateFormatter = SimpleDateFormat("d MMM, HH:mm", Locale("ru")
 @Composable
 fun ArchiveScreen(
     viewModel: TaskViewModel = viewModel(),
-    isDarkTheme: Boolean = false,
-    onToggleTheme: () -> Unit = {},
     onNotificationsClick: () -> Unit = {},
     onListsClick: () -> Unit = {},
-    onRemindersClick: () -> Unit = {}
+    onRemindersClick: () -> Unit = {},
+    onStatsClick: () -> Unit = {},
+    onSettingsClick: () -> Unit = {}
 ) {
     val appData by viewModel.appData.collectAsStateWithLifecycle()
     val archivedList = appData.archivedTasks
     var showClearDialog by remember { mutableStateOf(false) }
     var menuExpanded by remember { mutableStateOf(false) }
-    var showAboutDialog by remember { mutableStateOf(false) }
 
     val unreadNotifsCount = remember(appData.notifications) {
         appData.notifications.count { !it.isRead }
@@ -116,16 +114,27 @@ fun ArchiveScreen(
                                 }
                             )
 
-                            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
-
                             DropdownMenuItem(
-                                text = { Text("О приложении") },
+                                text = { Text("Статистика", fontWeight = FontWeight.SemiBold) },
                                 leadingIcon = {
-                                    Icon(Icons.Default.Info, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Icon(Icons.Default.TrendingUp, contentDescription = null, tint = Color(0xFF34C759))
                                 },
                                 onClick = {
                                     menuExpanded = false
-                                    showAboutDialog = true
+                                    onStatsClick()
+                                }
+                            )
+
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+
+                            DropdownMenuItem(
+                                text = { Text("Настройки") },
+                                leadingIcon = {
+                                    Icon(Icons.Default.Settings, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                                },
+                                onClick = {
+                                    menuExpanded = false
+                                    onSettingsClick()
                                 }
                             )
                         }
@@ -159,15 +168,6 @@ fun ArchiveScreen(
                                 tint = MaterialTheme.colorScheme.onBackground
                             )
                         }
-                    }
-
-                    // Переключатель темы
-                    IconButton(onClick = onToggleTheme) {
-                        Icon(
-                            if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
-                            contentDescription = "Сменить тему",
-                            tint = if (isDarkTheme) Color(0xFFFFD60A) else MaterialTheme.colorScheme.onBackground
-                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -231,16 +231,12 @@ fun ArchiveScreen(
                 items(archivedList, key = { it.id }) { item ->
                     ArchivedItemCard(
                         item = item,
-                        onRestore = { viewModel.restoreArchivedTask(item) },
+                        onRestore = { viewModel.restoreArchivedTask(item.id) },
                         onDeletePermanent = { viewModel.deleteArchivedTask(item.id) }
                     )
                 }
             }
         }
-    }
-
-    if (showAboutDialog) {
-        AboutAppDialog(onDismiss = { showAboutDialog = false })
     }
 
     if (showClearDialog) {

@@ -18,14 +18,22 @@ import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.CompositionLocalProvider
 import com.example.myapplication.data.SmartListType
 import com.example.myapplication.notifications.createNotificationChannel
 import com.example.myapplication.ui.ArchiveScreen
 import com.example.myapplication.ui.CategoriesScreen
 import com.example.myapplication.ui.CategoryDetailScreen
 import com.example.myapplication.ui.NotificationsScreen
+import com.example.myapplication.ui.AppSettingsScreen
+import com.example.myapplication.ui.DataTransferScreen
+import com.example.myapplication.ui.LocalHapticsEnabled
+import com.example.myapplication.ui.LocalSoundEnabled
 import com.example.myapplication.ui.RemindersScreen
+import com.example.myapplication.ui.SettingsScreen
 import com.example.myapplication.ui.SmartListScreen
+import com.example.myapplication.ui.StatsScreen
+import com.example.myapplication.ui.ThemeScreen
 import com.example.myapplication.ui.theme.MyApplicationTheme
 
 sealed class Screen {
@@ -35,6 +43,11 @@ sealed class Screen {
     data object Archive : Screen()
     data object Notifications : Screen()
     data object Reminders : Screen()
+    data object Stats : Screen()
+    data object Settings : Screen()
+    data object AppSettings : Screen()
+    data object Theme : Screen()
+    data object DataTransfer : Screen()
 }
 
 class MainActivity : ComponentActivity() {
@@ -79,18 +92,27 @@ class MainActivity : ComponentActivity() {
                     var currentScreen by remember { mutableStateOf<Screen>(Screen.Categories) }
 
                     BackHandler(enabled = currentScreen != Screen.Categories) {
-                        currentScreen = Screen.Categories
+                        currentScreen = when (currentScreen) {
+                            is Screen.AppSettings -> Screen.Settings
+                            is Screen.Theme -> Screen.Settings
+                            is Screen.DataTransfer -> Screen.Settings
+                            else -> Screen.Categories
+                        }
                     }
 
+                    CompositionLocalProvider(
+                        LocalSoundEnabled provides appData.soundEnabled,
+                        LocalHapticsEnabled provides appData.hapticsEnabled
+                    ) {
                     when (val screen = currentScreen) {
                         is Screen.Categories -> {
                             CategoriesScreen(
                                 viewModel = mainViewModel,
-                                isDarkTheme = isDark,
-                                onToggleTheme = { mainViewModel.toggleTheme(isDark) },
                                 onNotificationsClick = { currentScreen = Screen.Notifications },
                                 onArchiveClick = { currentScreen = Screen.Archive },
                                 onRemindersClick = { currentScreen = Screen.Reminders },
+                                onStatsClick = { currentScreen = Screen.Stats },
+                                onSettingsClick = { currentScreen = Screen.Settings },
                                 onSmartListClick = { smartType ->
                                     currentScreen = Screen.SmartList(smartType)
                                 },
@@ -103,8 +125,6 @@ class MainActivity : ComponentActivity() {
                             CategoryDetailScreen(
                                 categoryId = screen.categoryId,
                                 viewModel = mainViewModel,
-                                isDarkTheme = isDark,
-                                onToggleTheme = { mainViewModel.toggleTheme(isDark) },
                                 onBack = { currentScreen = Screen.Categories }
                             )
                         }
@@ -118,11 +138,11 @@ class MainActivity : ComponentActivity() {
                         is Screen.Archive -> {
                             ArchiveScreen(
                                 viewModel = mainViewModel,
-                                isDarkTheme = isDark,
-                                onToggleTheme = { mainViewModel.toggleTheme(isDark) },
                                 onNotificationsClick = { currentScreen = Screen.Notifications },
                                 onListsClick = { currentScreen = Screen.Categories },
-                                onRemindersClick = { currentScreen = Screen.Reminders }
+                                onRemindersClick = { currentScreen = Screen.Reminders },
+                                onStatsClick = { currentScreen = Screen.Stats },
+                                onSettingsClick = { currentScreen = Screen.Settings }
                             )
                         }
                         is Screen.Notifications -> {
@@ -134,13 +154,50 @@ class MainActivity : ComponentActivity() {
                         is Screen.Reminders -> {
                             RemindersScreen(
                                 viewModel = mainViewModel,
-                                isDarkTheme = isDark,
-                                onToggleTheme = { mainViewModel.toggleTheme(isDark) },
                                 onNotificationsClick = { currentScreen = Screen.Notifications },
                                 onArchiveClick = { currentScreen = Screen.Archive },
-                                onListsClick = { currentScreen = Screen.Categories }
+                                onListsClick = { currentScreen = Screen.Categories },
+                                onStatsClick = { currentScreen = Screen.Stats },
+                                onSettingsClick = { currentScreen = Screen.Settings }
                             )
                         }
+                        is Screen.Stats -> {
+                            StatsScreen(
+                                viewModel = mainViewModel,
+                                onNotificationsClick = { currentScreen = Screen.Notifications },
+                                onListsClick = { currentScreen = Screen.Categories },
+                                onRemindersClick = { currentScreen = Screen.Reminders },
+                                onArchiveClick = { currentScreen = Screen.Archive },
+                                onSettingsClick = { currentScreen = Screen.Settings }
+                            )
+                        }
+                        is Screen.Settings -> {
+                            SettingsScreen(
+                                onBack = { currentScreen = Screen.Categories },
+                                onAppSettingsClick = { currentScreen = Screen.AppSettings },
+                                onThemeClick = { currentScreen = Screen.Theme },
+                                onDataTransferClick = { currentScreen = Screen.DataTransfer }
+                            )
+                        }
+                        is Screen.AppSettings -> {
+                            AppSettingsScreen(
+                                viewModel = mainViewModel,
+                                onBack = { currentScreen = Screen.Settings }
+                            )
+                        }
+                        is Screen.Theme -> {
+                            ThemeScreen(
+                                viewModel = mainViewModel,
+                                onBack = { currentScreen = Screen.Settings }
+                            )
+                        }
+                        is Screen.DataTransfer -> {
+                            DataTransferScreen(
+                                viewModel = mainViewModel,
+                                onBack = { currentScreen = Screen.Settings }
+                            )
+                        }
+                    }
                     }
                 }
             }

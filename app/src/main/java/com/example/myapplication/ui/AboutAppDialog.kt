@@ -72,24 +72,25 @@ fun AboutAppDialog(onDismiss: () -> Unit) {
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Text(
-                            "✨ Возможности SmartDo:",
+                            "✨ Возможности SmartDo v2.0:",
                             fontWeight = FontWeight.SemiBold,
                             style = MaterialTheme.typography.bodyMedium
                         )
-                        Text("• Минималистичный дизайн в стиле Apple (iOS)", style = MaterialTheme.typography.bodySmall)
+                        Text("• Дизайн в минималистичном стиле Apple (iOS)", style = MaterialTheme.typography.bodySmall)
+                        Text("• Вложенные чек-листы и подзадачи с прогресс-баром", style = MaterialTheme.typography.bodySmall)
+                        Text("• Приоритеты задач с цветными флагами", style = MaterialTheme.typography.bodySmall)
                         Text("• Категории задач с выбором кастомных иконок", style = MaterialTheme.typography.bodySmall)
                         Text("• Точные напоминания, будильники и дедлайны", style = MaterialTheme.typography.bodySmall)
-                        Text("• Раздел памятных дат и дней рождения с расчётом знаков зодиака", style = MaterialTheme.typography.bodySmall)
-                        Text("• Встроенный центр уведомлений с историей", style = MaterialTheme.typography.bodySmall)
-                        Text("• Архив с возможностью восстановления задач", style = MaterialTheme.typography.bodySmall)
-                        Text("• Поддержка светлой и глубокой тёмной темы", style = MaterialTheme.typography.bodySmall)
+                        Text("• Памятные даты и дни рождения с расчётом знаков зодиака", style = MaterialTheme.typography.bodySmall)
+                        Text("• Центр уведомлений и безопасный архив", style = MaterialTheme.typography.bodySmall)
+                        Text("• Светлая и глубокая тёмная темы", style = MaterialTheme.typography.bodySmall)
                     }
                 }
 
                 Spacer(Modifier.height(12.dp))
 
                 Text(
-                    "Версия 1.0.0",
+                    "Версия 2.0.0",
                     fontSize = 11.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                 )
