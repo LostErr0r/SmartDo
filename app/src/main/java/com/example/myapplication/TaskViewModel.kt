@@ -26,12 +26,21 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 
+/** Снимок последней удалённой задачи — для отмены удаления (Undo). */
+data class DeletedTaskSnapshot(
+    val categoryId: Long,
+    val task: Task,
+    val archiveId: Long
+)
+
 class TaskViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = TaskRepository(application.applicationContext)
 
     private val _appData = MutableStateFlow(AppData())
     val appData: StateFlow<AppData> = _appData.asStateFlow()
+
+    private var lastDeleted: DeletedTaskSnapshot? = null
 
     init {
         viewModelScope.launch {
@@ -60,6 +69,26 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
     fun setHapticsEnabled(enabled: Boolean) {
         viewModelScope.launch {
             repository.saveData(appData.value.copy(hapticsEnabled = enabled))
+        }
+    }
+
+    fun setConfirmDeleteEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            repository.saveData(appData.value.copy(confirmDeleteEnabled = enabled))
+        }
+    }
+
+    // ── Сортировка и фильтр списков ───────────────────────
+
+    fun setTaskSortMode(mode: String) {
+        viewModelScope.launch {
+            repository.saveData(appData.value.copy(taskSortMode = mode))
+        }
+    }
+
+    fun setHideCompleted(enabled: Boolean) {
+        viewModelScope.launch {
+            repository.saveData(appData.value.copy(hideCompleted = enabled))
         }
     }
 
@@ -194,9 +223,11 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             cancelTaskNotification(getApplication(), taskId)
             var deletedEntry: ArchivedTask? = null
+            var deletedTask: Task? = null
             val updated = appData.value.categories.map { cat ->
                 if (cat.id == categoryId) {
                     val task = cat.tasks.find { it.id == taskId }
+                    deletedTask = task
                     deletedEntry = task?.let {
                         ArchivedTask(
                             originalTaskId = task.id,
@@ -217,6 +248,30 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
                 listOf(deletedEntry!!) + appData.value.archivedTasks
             } else appData.value.archivedTasks
             repository.saveData(appData.value.copy(categories = updated, archivedTasks = newArchive))
+            val task = deletedTask
+            val entry = deletedEntry
+            if (task != null && entry != null) {
+                lastDeleted = DeletedTaskSnapshot(categoryId, task, entry.id)
+            }
+        }
+    }
+
+    /** Отменить последнее удаление: вернуть задачу в её категорию и убрать запись из архива. */
+    fun undoDelete() {
+        val snap = lastDeleted ?: return
+        lastDeleted = null
+        viewModelScope.launch {
+            val cats = appData.value.categories.map { cat ->
+                if (cat.id == snap.categoryId) cat.copy(tasks = cat.tasks + snap.task) else cat
+            }
+            val archive = appData.value.archivedTasks.filter { it.id != snap.archiveId }
+            repository.saveData(appData.value.copy(categories = cats, archivedTasks = archive))
+            if (!snap.task.isDone && snap.task.deadlineMs != null) {
+                scheduleTaskNotification(
+                    getApplication(), snap.task.id, snap.task.title,
+                    snap.task.deadlineMs, snap.task.reminderMinutesBefore
+                )
+            }
         }
     }
 
@@ -254,9 +309,13 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             cancelTaskNotification(getApplication(), taskId)
             var deletedEntry: ArchivedTask? = null
+            var deletedTask: Task? = null
+            var fromCategoryId: Long = 0L
             val updated = appData.value.categories.map { cat ->
                 val task = cat.tasks.find { it.id == taskId }
                 if (task != null) {
+                    deletedTask = task
+                    fromCategoryId = cat.id
                     deletedEntry = ArchivedTask(
                         originalTaskId = task.id,
                         title = task.title,
@@ -275,6 +334,11 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
                 listOf(deletedEntry!!) + appData.value.archivedTasks
             } else appData.value.archivedTasks
             repository.saveData(appData.value.copy(categories = updated, archivedTasks = newArchive))
+            val task = deletedTask
+            val entry = deletedEntry
+            if (task != null && entry != null) {
+                lastDeleted = DeletedTaskSnapshot(fromCategoryId, task, entry.id)
+            }
         }
     }
 

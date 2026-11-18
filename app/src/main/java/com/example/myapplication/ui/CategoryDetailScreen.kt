@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
@@ -54,6 +55,7 @@ import com.example.myapplication.TaskViewModel
 import com.example.myapplication.data.Category
 import com.example.myapplication.data.Subtask
 import com.example.myapplication.data.Task
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -106,7 +108,11 @@ fun CategoryDetailScreen(
 
     CategoryDetailContent(
         category = category,
+        sortMode = appData.taskSortMode,
+        hideCompleted = appData.hideCompleted,
         onBack = onBack,
+        onSortModeChange = { viewModel.setTaskSortMode(it) },
+        onHideCompletedChange = { viewModel.setHideCompleted(it) },
         onEditCategory = { newName, newEmoji ->
             viewModel.updateCategory(categoryId, newName, newEmoji)
         },
@@ -118,33 +124,76 @@ fun CategoryDetailScreen(
         },
         onToggleTask = { taskId -> viewModel.toggleTask(categoryId, taskId) },
         onToggleSubtask = { taskId, subtaskId -> viewModel.toggleSubtask(categoryId, taskId, subtaskId) },
-        onDeleteTask = { taskId -> viewModel.deleteTask(categoryId, taskId) }
+        onDeleteTask = { taskId -> viewModel.deleteTask(categoryId, taskId) },
+        onUndoDelete = { viewModel.undoDelete() }
     )
+}
+
+/** Сортировка списка задач согласно выбранному режиму. */
+fun List<Task>.sortedByMode(mode: String): List<Task> = when (mode) {
+    "deadline" -> sortedBy { it.deadlineMs ?: Long.MAX_VALUE }
+    "priority" -> sortedByDescending { it.priority }
+    "alphabetical" -> sortedBy { it.title.lowercase() }
+    else -> this
+}
+
+/** Человекочитаемое название режима сортировки. */
+fun sortModeLabel(mode: String): String = when (mode) {
+    "deadline" -> "По сроку"
+    "priority" -> "По приоритету"
+    "alphabetical" -> "По алфавиту"
+    else -> "Вручную"
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryDetailContent(
     category: Category,
+    sortMode: String = "manual",
+    hideCompleted: Boolean = false,
     onBack: () -> Unit,
+    onSortModeChange: (String) -> Unit = {},
+    onHideCompletedChange: (Boolean) -> Unit = {},
     onEditCategory: (newName: String, newEmoji: String) -> Unit,
     onAddTask: (String, String, Int, Long?, Int?, List<Subtask>) -> Unit,
     onEditTask: (taskId: Long, String, String, Int, Long?, Int?, List<Subtask>) -> Unit,
     onToggleTask: (Long) -> Unit,
     onToggleSubtask: (Long, Long) -> Unit,
-    onDeleteTask: (Long) -> Unit
+    onDeleteTask: (Long) -> Unit,
+    onUndoDelete: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     var showAddDialog by remember { mutableStateOf(false) }
     var editingTask by remember { mutableStateOf<Task?>(null) }
     var showEditCategoryDialog by remember { mutableStateOf(false) }
     var showCompleted by remember { mutableStateOf(true) }
+    var sortMenuExpanded by remember { mutableStateOf(false) }
 
-    val activeTasks = remember(category.tasks) { category.tasks.filter { !it.isDone } }
-    val completedTasks = remember(category.tasks) { category.tasks.filter { it.isDone } }
+    val activeTasks = remember(category.tasks, sortMode) {
+        category.tasks.filter { !it.isDone }.sortedByMode(sortMode)
+    }
+    val completedTasks = remember(category.tasks, sortMode) {
+        category.tasks.filter { it.isDone }.sortedByMode(sortMode)
+    }
+
+    // Удаление с возможностью отмены через Snackbar.
+    val deleteWithUndo: (Long) -> Unit = { taskId ->
+        onDeleteTask(taskId)
+        scope.launch {
+            val result = snackbarHostState.showSnackbar(
+                message = "Задача удалена",
+                actionLabel = "Отменить",
+                duration = SnackbarDuration.Short
+            )
+            if (result == SnackbarResult.ActionPerformed) onUndoDelete()
+        }
+    }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -193,6 +242,50 @@ fun CategoryDetailContent(
                     }
                 },
                 actions = {
+                    // Меню сортировки / фильтра
+                    Box {
+                        IconButton(onClick = { sortMenuExpanded = true }) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.Sort,
+                                contentDescription = "Сортировка",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = sortMenuExpanded,
+                            onDismissRequest = { sortMenuExpanded = false }
+                        ) {
+                            listOf("manual", "deadline", "priority", "alphabetical").forEach { mode ->
+                                DropdownMenuItem(
+                                    text = { Text(sortModeLabel(mode)) },
+                                    trailingIcon = {
+                                        if (sortMode == mode) {
+                                            Icon(
+                                                Icons.Default.Check,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.primary
+                                            )
+                                        }
+                                    },
+                                    onClick = {
+                                        onSortModeChange(mode)
+                                        sortMenuExpanded = false
+                                    }
+                                )
+                            }
+                            HorizontalDivider()
+                            DropdownMenuItem(
+                                text = { Text("Скрывать выполненные") },
+                                trailingIcon = {
+                                    Switch(
+                                        checked = hideCompleted,
+                                        onCheckedChange = { onHideCompletedChange(it) }
+                                    )
+                                },
+                                onClick = { onHideCompletedChange(!hideCompleted) }
+                            )
+                        }
+                    }
                     // Кнопка «Поделиться списком»
                     IconButton(onClick = {
                         val shareText = buildString {
@@ -316,11 +409,11 @@ fun CategoryDetailContent(
                             onToggle = { onToggleTask(task.id) },
                             onToggleSubtask = { subId -> onToggleSubtask(task.id, subId) },
                             onEdit = { editingTask = task },
-                            onDelete = { onDeleteTask(task.id) }
+                            onDelete = { deleteWithUndo(task.id) }
                         )
                     }
 
-                    if (completedTasks.isNotEmpty()) {
+                    if (!hideCompleted && completedTasks.isNotEmpty()) {
                         item {
                             Spacer(Modifier.height(8.dp))
                             Row(
@@ -427,6 +520,8 @@ fun SwipeableTaskCard(
     val haptic = LocalHapticFeedback.current
     val soundOn = LocalSoundEnabled.current
     val hapticsOn = LocalHapticsEnabled.current
+    val confirmDelete = LocalConfirmDelete.current
+    var showDeleteConfirm by remember { mutableStateOf(false) }
 
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
@@ -441,13 +536,40 @@ fun SwipeableTaskCard(
                 SwipeToDismissBoxValue.EndToStart -> {
                     // Смахнули влево -> удалить
                     if (hapticsOn) haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    onDelete()
-                    true
+                    if (confirmDelete) {
+                        // Показываем подтверждение и не убираем карточку.
+                        showDeleteConfirm = true
+                        false
+                    } else {
+                        onDelete()
+                        true
+                    }
                 }
                 SwipeToDismissBoxValue.Settled -> false
             }
         }
     )
+
+    if (showDeleteConfirm) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            shape = RoundedCornerShape(22.dp),
+            title = { Text("Удалить задачу?", fontWeight = FontWeight.Bold) },
+            text = { Text("«${task.title}» будет перемещена в архив.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDeleteConfirm = false
+                        onDelete()
+                    },
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text("Удалить", fontWeight = FontWeight.SemiBold) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm = false }) { Text("Отмена") }
+            }
+        )
+    }
 
     SwipeToDismissBox(
         state = dismissState,

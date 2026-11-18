@@ -7,6 +7,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,11 +22,20 @@ import com.example.myapplication.TaskViewModel
 import com.example.myapplication.data.Category
 import com.example.myapplication.data.SmartListType
 import com.example.myapplication.data.Task
+import kotlinx.coroutines.launch
 
 data class TaskWithCategory(
     val task: Task,
     val category: Category
 )
+
+/** Сортировка задач-с-категорией согласно выбранному режиму. */
+fun List<TaskWithCategory>.sortedByMode(mode: String): List<TaskWithCategory> = when (mode) {
+    "deadline" -> sortedBy { it.task.deadlineMs ?: Long.MAX_VALUE }
+    "priority" -> sortedByDescending { it.task.priority }
+    "alphabetical" -> sortedBy { it.task.title.lowercase() }
+    else -> this
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,6 +46,24 @@ fun SmartListScreen(
 ) {
     val appData by viewModel.appData.collectAsStateWithLifecycle()
     var editingTaskWithCategory by remember { mutableStateOf<TaskWithCategory?>(null) }
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    var sortMenuExpanded by remember { mutableStateOf(false) }
+    val sortMode = appData.taskSortMode
+    val hideCompletedTasks = appData.hideCompleted
+
+    val deleteWithUndo: (Long) -> Unit = { taskId ->
+        viewModel.deleteTaskGlobal(taskId)
+        scope.launch {
+            val result = snackbarHostState.showSnackbar(
+                message = "Задача удалена",
+                actionLabel = "Отменить",
+                duration = SnackbarDuration.Short
+            )
+            if (result == SnackbarResult.ActionPerformed) viewModel.undoDelete()
+        }
+    }
 
     // Собираем задачи по типу умного списка
     val allTasksWithCategory = remember(appData, type) {
@@ -59,11 +88,12 @@ fun SmartListScreen(
         }
     }
 
-    val activeTasks = allTasksWithCategory.filter { !it.task.isDone }
-    val completedTasks = allTasksWithCategory.filter { it.task.isDone }
+    val activeTasks = allTasksWithCategory.filter { !it.task.isDone }.sortedByMode(sortMode)
+    val completedTasks = allTasksWithCategory.filter { it.task.isDone }.sortedByMode(sortMode)
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -85,6 +115,51 @@ fun SmartListScreen(
                             contentDescription = "Назад",
                             tint = MaterialTheme.colorScheme.primary
                         )
+                    }
+                },
+                actions = {
+                    Box {
+                        IconButton(onClick = { sortMenuExpanded = true }) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.Sort,
+                                contentDescription = "Сортировка",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = sortMenuExpanded,
+                            onDismissRequest = { sortMenuExpanded = false }
+                        ) {
+                            listOf("manual", "deadline", "priority", "alphabetical").forEach { mode ->
+                                DropdownMenuItem(
+                                    text = { Text(sortModeLabel(mode)) },
+                                    trailingIcon = {
+                                        if (sortMode == mode) {
+                                            Icon(
+                                                Icons.Default.Check,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.primary
+                                            )
+                                        }
+                                    },
+                                    onClick = {
+                                        viewModel.setTaskSortMode(mode)
+                                        sortMenuExpanded = false
+                                    }
+                                )
+                            }
+                            HorizontalDivider()
+                            DropdownMenuItem(
+                                text = { Text("Скрывать выполненные") },
+                                trailingIcon = {
+                                    Switch(
+                                        checked = hideCompletedTasks,
+                                        onCheckedChange = { viewModel.setHideCompleted(it) }
+                                    )
+                                },
+                                onClick = { viewModel.setHideCompleted(!hideCompletedTasks) }
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -134,12 +209,12 @@ fun SmartListScreen(
                             onToggle = { viewModel.toggleTaskGlobal(item.task.id) },
                             onToggleSubtask = { subId -> viewModel.toggleSubtaskGlobal(item.task.id, subId) },
                             onEdit = { editingTaskWithCategory = item },
-                            onDelete = { viewModel.deleteTaskGlobal(item.task.id) }
+                            onDelete = { deleteWithUndo(item.task.id) }
                         )
                     }
                 }
 
-                if (completedTasks.isNotEmpty()) {
+                if (!hideCompletedTasks && completedTasks.isNotEmpty()) {
                     item {
                         Spacer(Modifier.height(12.dp))
                         Text(
@@ -157,7 +232,7 @@ fun SmartListScreen(
                             onToggle = { viewModel.toggleTaskGlobal(item.task.id) },
                             onToggleSubtask = { subId -> viewModel.toggleSubtaskGlobal(item.task.id, subId) },
                             onEdit = { editingTaskWithCategory = item },
-                            onDelete = { viewModel.deleteTaskGlobal(item.task.id) }
+                            onDelete = { deleteWithUndo(item.task.id) }
                         )
                     }
                 }

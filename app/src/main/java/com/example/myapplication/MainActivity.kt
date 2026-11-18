@@ -27,8 +27,10 @@ import com.example.myapplication.ui.CategoryDetailScreen
 import com.example.myapplication.ui.NotificationsScreen
 import com.example.myapplication.ui.AppSettingsScreen
 import com.example.myapplication.ui.DataTransferScreen
+import com.example.myapplication.ui.LocalConfirmDelete
 import com.example.myapplication.ui.LocalHapticsEnabled
 import com.example.myapplication.ui.LocalSoundEnabled
+import com.example.myapplication.ui.SearchScreen
 import com.example.myapplication.ui.RemindersScreen
 import com.example.myapplication.ui.SettingsScreen
 import com.example.myapplication.ui.SmartListScreen
@@ -48,6 +50,7 @@ sealed class Screen {
     data object AppSettings : Screen()
     data object Theme : Screen()
     data object DataTransfer : Screen()
+    data object Search : Screen()
 }
 
 class MainActivity : ComponentActivity() {
@@ -102,7 +105,8 @@ class MainActivity : ComponentActivity() {
 
                     CompositionLocalProvider(
                         LocalSoundEnabled provides appData.soundEnabled,
-                        LocalHapticsEnabled provides appData.hapticsEnabled
+                        LocalHapticsEnabled provides appData.hapticsEnabled,
+                        LocalConfirmDelete provides appData.confirmDeleteEnabled
                     ) {
                     when (val screen = currentScreen) {
                         is Screen.Categories -> {
@@ -113,6 +117,7 @@ class MainActivity : ComponentActivity() {
                                 onRemindersClick = { currentScreen = Screen.Reminders },
                                 onStatsClick = { currentScreen = Screen.Stats },
                                 onSettingsClick = { currentScreen = Screen.Settings },
+                                onSearchClick = { currentScreen = Screen.Search },
                                 onSmartListClick = { smartType ->
                                     currentScreen = Screen.SmartList(smartType)
                                 },
@@ -195,6 +200,12 @@ class MainActivity : ComponentActivity() {
                             DataTransferScreen(
                                 viewModel = mainViewModel,
                                 onBack = { currentScreen = Screen.Settings }
+                            )
+                        }
+                        is Screen.Search -> {
+                            SearchScreen(
+                                viewModel = mainViewModel,
+                                onBack = { currentScreen = Screen.Categories }
                             )
                         }
                     }

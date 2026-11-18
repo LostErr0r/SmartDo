@@ -94,7 +94,10 @@ data class AppData(
     val specialReminders: List<SpecialReminder> = emptyList(),
     val themeMode: String = "system",
     val soundEnabled: Boolean = true,
-    val hapticsEnabled: Boolean = true
+    val hapticsEnabled: Boolean = true,
+    val confirmDeleteEnabled: Boolean = false,
+    val taskSortMode: String = "manual", // manual | deadline | priority | alphabetical
+    val hideCompleted: Boolean = false
 )
 
 enum class SmartListType(val title: String, val emoji: String) {

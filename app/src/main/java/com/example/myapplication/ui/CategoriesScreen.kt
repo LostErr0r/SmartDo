@@ -54,6 +54,7 @@ fun CategoriesScreen(
     onRemindersClick: () -> Unit = {},
     onStatsClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
+    onSearchClick: () -> Unit = {},
     onSmartListClick: (SmartListType) -> Unit = {},
     onCategoryClick: (Long) -> Unit
 ) {
@@ -71,6 +72,7 @@ fun CategoriesScreen(
         onRemindersClick = onRemindersClick,
         onStatsClick = onStatsClick,
         onSettingsClick = onSettingsClick,
+        onSearchClick = onSearchClick,
         onSmartListClick = onSmartListClick,
         onCategoryClick = onCategoryClick,
         onEditCategory = { category -> editingCategory = category },
@@ -118,6 +120,7 @@ fun CategoriesContent(
     onRemindersClick: () -> Unit = {},
     onStatsClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
+    onSearchClick: () -> Unit = {},
     onSmartListClick: (SmartListType) -> Unit = {},
     onCategoryClick: (Long) -> Unit,
     onEditCategory: (Category) -> Unit,
@@ -238,6 +241,14 @@ fun CategoriesContent(
                     }
                 },
                 actions = {
+                    // Поиск по всем задачам
+                    IconButton(onClick = onSearchClick) {
+                        Icon(
+                            Icons.Default.Search,
+                            contentDescription = "Поиск",
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
                     // Иконка уведомлений (с бейджем)
                     IconButton(onClick = onNotificationsClick) {
                         BadgedBox(
