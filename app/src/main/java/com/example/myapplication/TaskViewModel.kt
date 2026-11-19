@@ -33,6 +33,35 @@ data class DeletedTaskSnapshot(
     val archiveId: Long
 )
 
+/** Следующая дата повторения относительно дедлайна, либо null если повтор выключен. */
+private fun nextRepeatDeadline(deadlineMs: Long, rule: String): Long? {
+    val cal = java.util.Calendar.getInstance().apply { timeInMillis = deadlineMs }
+    when (rule) {
+        "daily" -> cal.add(java.util.Calendar.DAY_OF_MONTH, 1)
+        "weekly" -> cal.add(java.util.Calendar.DAY_OF_MONTH, 7)
+        "monthly" -> cal.add(java.util.Calendar.MONTH, 1)
+        "yearly" -> cal.add(java.util.Calendar.YEAR, 1)
+        else -> return null
+    }
+    return cal.timeInMillis
+}
+
+/** Создаёт следующий экземпляр повторяющейся задачи, либо null. */
+private fun Task.nextOccurrence(): Task? {
+    if (repeatRule == "none" || deadlineMs == null) return null
+    val nd = nextRepeatDeadline(deadlineMs, repeatRule) ?: return null
+    return Task(
+        title = title,
+        description = description,
+        priority = priority,
+        isDone = false,
+        deadlineMs = nd,
+        reminderMinutesBefore = reminderMinutesBefore,
+        subtasks = subtasks.map { it.copy(isDone = false) },
+        repeatRule = repeatRule
+    )
+}
+
 class TaskViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = TaskRepository(application.applicationContext)
@@ -130,7 +159,8 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
         priority: Int = 0,
         deadlineMs: Long? = null,
         reminderMinutesBefore: Int? = null,
-        subtasks: List<Subtask> = emptyList()
+        subtasks: List<Subtask> = emptyList(),
+        repeatRule: String = "none"
     ) {
         if (title.isBlank()) return
         viewModelScope.launch {
@@ -140,7 +170,8 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
                 priority = priority,
                 deadlineMs = deadlineMs,
                 reminderMinutesBefore = reminderMinutesBefore,
-                subtasks = subtasks
+                subtasks = subtasks,
+                repeatRule = repeatRule
             )
             val updated = appData.value.categories.map { cat ->
                 if (cat.id == categoryId) cat.copy(tasks = cat.tasks + task)
@@ -161,7 +192,8 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
         priority: Int,
         deadlineMs: Long?,
         reminderMinutesBefore: Int?,
-        subtasks: List<Subtask> = emptyList()
+        subtasks: List<Subtask> = emptyList(),
+        repeatRule: String = "none"
     ) {
         if (title.isBlank()) return
         viewModelScope.launch {
@@ -175,7 +207,8 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
                             priority = priority,
                             deadlineMs = deadlineMs,
                             reminderMinutesBefore = reminderMinutesBefore,
-                            subtasks = subtasks
+                            subtasks = subtasks,
+                            repeatRule = repeatRule
                         ) else task
                     })
                 } else cat
@@ -212,7 +245,17 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
                     message = "«${toggledTask!!.title}» в «$catEmoji $catName»"
                 )
                 val notifs = listOf(notif) + appData.value.notifications.take(99)
-                repository.saveData(appData.value.copy(categories = updated, notifications = notifs))
+                // Повтор: создаём следующий экземпляр в той же категории.
+                val spawn = toggledTask!!.nextOccurrence()
+                val cats = if (spawn != null) {
+                    updated.map { if (it.id == categoryId) it.copy(tasks = it.tasks + spawn) else it }
+                } else updated
+                repository.saveData(appData.value.copy(categories = cats, notifications = notifs))
+                if (spawn?.deadlineMs != null) {
+                    scheduleTaskNotification(
+                        getApplication(), spawn.id, spawn.title, spawn.deadlineMs, spawn.reminderMinutesBefore
+                    )
+                }
             } else {
                 repository.saveData(appData.value.copy(categories = updated))
             }
@@ -278,6 +321,7 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
     fun toggleTaskGlobal(taskId: Long) {
         viewModelScope.launch {
             var toggledTask: Task? = null
+            var toggledCatId = 0L
             var catName = ""
             var catEmoji = ""
             val updated = appData.value.categories.map { cat ->
@@ -285,6 +329,7 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
                     if (task.id == taskId) {
                         catName = cat.name
                         catEmoji = cat.emoji
+                        toggledCatId = cat.id
                         val newTask = task.copy(isDone = !task.isDone)
                         toggledTask = newTask
                         newTask
@@ -298,7 +343,16 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
                     message = "«${toggledTask!!.title}» в «$catEmoji $catName»"
                 )
                 val notifs = listOf(notif) + appData.value.notifications.take(99)
-                repository.saveData(appData.value.copy(categories = updated, notifications = notifs))
+                val spawn = toggledTask!!.nextOccurrence()
+                val cats = if (spawn != null) {
+                    updated.map { if (it.id == toggledCatId) it.copy(tasks = it.tasks + spawn) else it }
+                } else updated
+                repository.saveData(appData.value.copy(categories = cats, notifications = notifs))
+                if (spawn?.deadlineMs != null) {
+                    scheduleTaskNotification(
+                        getApplication(), spawn.id, spawn.title, spawn.deadlineMs, spawn.reminderMinutesBefore
+                    )
+                }
             } else {
                 repository.saveData(appData.value.copy(categories = updated))
             }

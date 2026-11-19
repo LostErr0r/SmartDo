@@ -26,6 +26,7 @@ import com.example.myapplication.ui.CategoriesScreen
 import com.example.myapplication.ui.CategoryDetailScreen
 import com.example.myapplication.ui.NotificationsScreen
 import com.example.myapplication.ui.AppSettingsScreen
+import com.example.myapplication.ui.CalendarScreen
 import com.example.myapplication.ui.DataTransferScreen
 import com.example.myapplication.ui.LocalConfirmDelete
 import com.example.myapplication.ui.LocalHapticsEnabled
@@ -51,6 +52,7 @@ sealed class Screen {
     data object Theme : Screen()
     data object DataTransfer : Screen()
     data object Search : Screen()
+    data object Calendar : Screen()
 }
 
 class MainActivity : ComponentActivity() {
@@ -118,6 +120,7 @@ class MainActivity : ComponentActivity() {
                                 onStatsClick = { currentScreen = Screen.Stats },
                                 onSettingsClick = { currentScreen = Screen.Settings },
                                 onSearchClick = { currentScreen = Screen.Search },
+                                onCalendarClick = { currentScreen = Screen.Calendar },
                                 onSmartListClick = { smartType ->
                                     currentScreen = Screen.SmartList(smartType)
                                 },
@@ -204,6 +207,12 @@ class MainActivity : ComponentActivity() {
                         }
                         is Screen.Search -> {
                             SearchScreen(
+                                viewModel = mainViewModel,
+                                onBack = { currentScreen = Screen.Categories }
+                            )
+                        }
+                        is Screen.Calendar -> {
+                            CalendarScreen(
                                 viewModel = mainViewModel,
                                 onBack = { currentScreen = Screen.Categories }
                             )

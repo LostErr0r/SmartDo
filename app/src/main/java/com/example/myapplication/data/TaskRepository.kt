@@ -37,7 +37,8 @@ data class Task(
     val isDone: Boolean = false,
     val deadlineMs: Long? = null,
     val reminderMinutesBefore: Int? = 0,
-    val subtasks: List<Subtask> = emptyList()
+    val subtasks: List<Subtask> = emptyList(),
+    val repeatRule: String = "none" // none | daily | weekly | monthly | yearly
 )
 
 @Serializable

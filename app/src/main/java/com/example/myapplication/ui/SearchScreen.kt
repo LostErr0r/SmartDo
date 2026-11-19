@@ -163,10 +163,11 @@ fun SearchScreen(
             initialDeadlineMs = item.task.deadlineMs,
             initialReminderMinutes = item.task.reminderMinutesBefore,
             initialSubtasks = item.task.subtasks,
+            initialRepeatRule = item.task.repeatRule,
             confirmButtonText = "Сохранить",
-            onConfirm = { title, desc, priority, deadline, reminder, subtasks ->
+            onConfirm = { title, desc, priority, deadline, reminder, subtasks, repeat ->
                 viewModel.updateTask(
-                    item.category.id, item.task.id, title, desc, priority, deadline, reminder, subtasks
+                    item.category.id, item.task.id, title, desc, priority, deadline, reminder, subtasks, repeat
                 )
                 editingTaskWithCategory = null
             },

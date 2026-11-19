@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Cake
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Edit
@@ -55,6 +56,7 @@ fun CategoriesScreen(
     onStatsClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
     onSearchClick: () -> Unit = {},
+    onCalendarClick: () -> Unit = {},
     onSmartListClick: (SmartListType) -> Unit = {},
     onCategoryClick: (Long) -> Unit
 ) {
@@ -73,6 +75,7 @@ fun CategoriesScreen(
         onStatsClick = onStatsClick,
         onSettingsClick = onSettingsClick,
         onSearchClick = onSearchClick,
+        onCalendarClick = onCalendarClick,
         onSmartListClick = onSmartListClick,
         onCategoryClick = onCategoryClick,
         onEditCategory = { category -> editingCategory = category },
@@ -121,6 +124,7 @@ fun CategoriesContent(
     onStatsClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
     onSearchClick: () -> Unit = {},
+    onCalendarClick: () -> Unit = {},
     onSmartListClick: (SmartListType) -> Unit = {},
     onCategoryClick: (Long) -> Unit,
     onEditCategory: (Category) -> Unit,
@@ -200,6 +204,17 @@ fun CategoriesContent(
                                 onClick = {
                                     menuExpanded = false
                                     onRemindersClick()
+                                }
+                            )
+
+                            DropdownMenuItem(
+                                text = { Text("Календарь", fontWeight = FontWeight.SemiBold) },
+                                leadingIcon = {
+                                    Icon(Icons.Default.CalendarMonth, contentDescription = null, tint = Color(0xFF007AFF))
+                                },
+                                onClick = {
+                                    menuExpanded = false
+                                    onCalendarClick()
                                 }
                             )
 

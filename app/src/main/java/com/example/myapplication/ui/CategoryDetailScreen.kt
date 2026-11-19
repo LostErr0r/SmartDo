@@ -11,7 +11,9 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -116,11 +118,11 @@ fun CategoryDetailScreen(
         onEditCategory = { newName, newEmoji ->
             viewModel.updateCategory(categoryId, newName, newEmoji)
         },
-        onAddTask = { title, desc, priority, deadline, reminder, subtasks ->
-            viewModel.addTask(categoryId, title, desc, priority, deadline, reminder, subtasks)
+        onAddTask = { title, desc, priority, deadline, reminder, subtasks, repeat ->
+            viewModel.addTask(categoryId, title, desc, priority, deadline, reminder, subtasks, repeat)
         },
-        onEditTask = { taskId, newTitle, newDesc, newPriority, newDeadline, newReminder, newSubtasks ->
-            viewModel.updateTask(categoryId, taskId, newTitle, newDesc, newPriority, newDeadline, newReminder, newSubtasks)
+        onEditTask = { taskId, newTitle, newDesc, newPriority, newDeadline, newReminder, newSubtasks, repeat ->
+            viewModel.updateTask(categoryId, taskId, newTitle, newDesc, newPriority, newDeadline, newReminder, newSubtasks, repeat)
         },
         onToggleTask = { taskId -> viewModel.toggleTask(categoryId, taskId) },
         onToggleSubtask = { taskId, subtaskId -> viewModel.toggleSubtask(categoryId, taskId, subtaskId) },
@@ -145,6 +147,15 @@ fun sortModeLabel(mode: String): String = when (mode) {
     else -> "Вручную"
 }
 
+/** Короткая подпись повтора для карточки задачи. */
+fun repeatLabelShort(rule: String): String = when (rule) {
+    "daily" -> "каждый день"
+    "weekly" -> "каждую неделю"
+    "monthly" -> "каждый месяц"
+    "yearly" -> "каждый год"
+    else -> ""
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryDetailContent(
@@ -155,8 +166,8 @@ fun CategoryDetailContent(
     onSortModeChange: (String) -> Unit = {},
     onHideCompletedChange: (Boolean) -> Unit = {},
     onEditCategory: (newName: String, newEmoji: String) -> Unit,
-    onAddTask: (String, String, Int, Long?, Int?, List<Subtask>) -> Unit,
-    onEditTask: (taskId: Long, String, String, Int, Long?, Int?, List<Subtask>) -> Unit,
+    onAddTask: (String, String, Int, Long?, Int?, List<Subtask>, String) -> Unit,
+    onEditTask: (taskId: Long, String, String, Int, Long?, Int?, List<Subtask>, String) -> Unit,
     onToggleTask: (Long) -> Unit,
     onToggleSubtask: (Long, Long) -> Unit,
     onDeleteTask: (Long) -> Unit,
@@ -429,9 +440,10 @@ fun CategoryDetailContent(
             initialDeadlineMs = null,
             initialReminderMinutes = 15,
             initialSubtasks = emptyList(),
+            initialRepeatRule = "none",
             confirmButtonText = "Добавить",
-            onConfirm = { title, desc, priority, deadline, reminder, subtasks ->
-                onAddTask(title, desc, priority, deadline, reminder, subtasks)
+            onConfirm = { title, desc, priority, deadline, reminder, subtasks, repeat ->
+                onAddTask(title, desc, priority, deadline, reminder, subtasks, repeat)
                 showAddDialog = false
             },
             onDismiss = { showAddDialog = false }
@@ -447,9 +459,10 @@ fun CategoryDetailContent(
             initialDeadlineMs = task.deadlineMs,
             initialReminderMinutes = task.reminderMinutesBefore,
             initialSubtasks = task.subtasks,
+            initialRepeatRule = task.repeatRule,
             confirmButtonText = "Сохранить",
-            onConfirm = { title, desc, priority, deadline, reminder, subtasks ->
-                onEditTask(task.id, title, desc, priority, deadline, reminder, subtasks)
+            onConfirm = { title, desc, priority, deadline, reminder, subtasks, repeat ->
+                onEditTask(task.id, title, desc, priority, deadline, reminder, subtasks, repeat)
                 editingTask = null
             },
             onDismiss = { editingTask = null }
@@ -723,6 +736,14 @@ fun AppleTaskCard(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
                                 )
                             }
+
+                            if (task.repeatRule != "none") {
+                                Text(
+                                    text = "• 🔁 ${repeatLabelShort(task.repeatRule)}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
+                                )
+                            }
                         }
                     }
                 }
@@ -874,14 +895,16 @@ fun TaskDialog(
     initialDeadlineMs: Long?,
     initialReminderMinutes: Int?,
     initialSubtasks: List<Subtask> = emptyList(),
+    initialRepeatRule: String = "none",
     confirmButtonText: String,
-    onConfirm: (title: String, description: String, priority: Int, deadlineMs: Long?, reminderMinutes: Int?, subtasks: List<Subtask>) -> Unit,
+    onConfirm: (title: String, description: String, priority: Int, deadlineMs: Long?, reminderMinutes: Int?, subtasks: List<Subtask>, repeatRule: String) -> Unit,
     onDismiss: () -> Unit
 ) {
     var title by remember { mutableStateOf(initialTitle) }
     var description by remember { mutableStateOf(initialDescription) }
     var priority by remember { mutableIntStateOf(initialPriority) }
     var subtasks by remember { mutableStateOf(initialSubtasks) }
+    var repeatRule by remember { mutableStateOf(initialRepeatRule) }
     var newSubtaskText by remember { mutableStateOf("") }
     var hasDeadline by remember { mutableStateOf(initialDeadlineMs != null) }
 
@@ -1266,6 +1289,35 @@ fun TaskDialog(
                             }
                         }
 
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            "Повтор",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            listOf(
+                                "none" to "Нет",
+                                "daily" to "День",
+                                "weekly" to "Неделя",
+                                "monthly" to "Месяц",
+                                "yearly" to "Год"
+                            ).forEach { (rule, label) ->
+                                FilterChip(
+                                    selected = repeatRule == rule,
+                                    onClick = { repeatRule = rule },
+                                    shape = RoundedCornerShape(10.dp),
+                                    label = { Text(label, fontSize = 12.sp, maxLines = 1) }
+                                )
+                            }
+                        }
+
                         TextButton(
                             onClick = { hasDeadline = false },
                             modifier = Modifier.align(Alignment.End)
@@ -1296,7 +1348,8 @@ fun TaskDialog(
                                 priority,
                                 computedDeadlineMs,
                                 if (hasDeadline) selectedReminder else null,
-                                subtasks
+                                subtasks,
+                                if (hasDeadline) repeatRule else "none"
                             )
                         }
                     },
