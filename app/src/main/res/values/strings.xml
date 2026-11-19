@@ -9,4 +9,52 @@
     <string name="image2_description">Cookies</string>
     <string name="image3_description">Cake</string>
     <string name="results_placeholder">(Results will appear here)</string>
+
+    <!-- Общие -->
+    <string name="back">Назад</string>
+
+    <!-- Настройки -->
+    <string name="settings_title">Настройки</string>
+    <string name="settings_app">Приложение</string>
+    <string name="settings_app_sub">Звук, вибрация, язык и другие функции</string>
+    <string name="settings_theme">Изменить тему</string>
+    <string name="settings_theme_sub">Оформление приложения</string>
+    <string name="settings_data">Перенос данных</string>
+    <string name="settings_data_sub">Импорт и экспорт заметок</string>
+    <string name="settings_about">О приложении</string>
+    <string name="settings_about_sub">Версия и возможности</string>
+
+    <!-- Экран «Приложение» -->
+    <string name="section_feedback">Обратная связь</string>
+    <string name="sound">Звук</string>
+    <string name="sound_sub">Звуковой сигнал при действиях</string>
+    <string name="vibration">Вибрация</string>
+    <string name="vibration_sub">Тактильный отклик при нажатиях</string>
+    <string name="section_language">Язык</string>
+    <string name="lang_system">Системный</string>
+    <string name="lang_system_sub">Как в настройках телефона</string>
+    <string name="lang_russian">Русский</string>
+    <string name="lang_english">English</string>
+    <string name="selected">Выбрано</string>
+
+    <!-- Тема -->
+    <string name="theme_title">Изменить тему</string>
+    <string name="theme_system">Системная</string>
+    <string name="theme_system_sub">Как в настройках телефона</string>
+    <string name="theme_light">Светлая</string>
+    <string name="theme_light_sub">Всегда светлое оформление</string>
+    <string name="theme_dark">Тёмная</string>
+    <string name="theme_dark_sub">Всегда тёмное оформление</string>
+
+    <!-- Перенос данных -->
+    <string name="data_title">Перенос данных</string>
+    <string name="data_desc">Сохраните все ваши данные в .json-файл или восстановите их из ранее сохранённой копии.</string>
+    <string name="export_file">Экспорт в файл</string>
+    <string name="import_file">Импорт из файла</string>
+    <string name="data_warn">Импорт заменит текущие данные приложения данными из файла.</string>
+    <string name="backup_saved">Резервная копия сохранена ✅</string>
+    <string name="backup_save_failed">Не удалось сохранить файл</string>
+    <string name="restore_ok">Данные успешно восстановлены! 🎉</string>
+    <string name="restore_bad_format">Ошибка: неверный формат данных JSON</string>
+    <string name="read_failed">Не удалось прочитать файл</string>
 </resources>

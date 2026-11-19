@@ -1,0 +1,51 @@
+<resources>
+    <string name="widget_description">SmartDo tasks and reminders widget</string>
+
+    <!-- Common -->
+    <string name="back">Back</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_app">App</string>
+    <string name="settings_app_sub">Sound, vibration, language and more</string>
+    <string name="settings_theme">Change theme</string>
+    <string name="settings_theme_sub">App appearance</string>
+    <string name="settings_data">Data transfer</string>
+    <string name="settings_data_sub">Import and export notes</string>
+    <string name="settings_about">About</string>
+    <string name="settings_about_sub">Version and features</string>
+
+    <!-- App settings screen -->
+    <string name="section_feedback">Feedback</string>
+    <string name="sound">Sound</string>
+    <string name="sound_sub">Sound on actions</string>
+    <string name="vibration">Vibration</string>
+    <string name="vibration_sub">Haptic feedback on taps</string>
+    <string name="section_language">Language</string>
+    <string name="lang_system">System</string>
+    <string name="lang_system_sub">Follow phone settings</string>
+    <string name="lang_russian">Русский</string>
+    <string name="lang_english">English</string>
+    <string name="selected">Selected</string>
+
+    <!-- Theme -->
+    <string name="theme_title">Change theme</string>
+    <string name="theme_system">System</string>
+    <string name="theme_system_sub">Follow phone settings</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_light_sub">Always light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_dark_sub">Always dark</string>
+
+    <!-- Data transfer -->
+    <string name="data_title">Data transfer</string>
+    <string name="data_desc">Save all your data to a .json file or restore it from a previously saved backup.</string>
+    <string name="export_file">Export to file</string>
+    <string name="import_file">Import from file</string>
+    <string name="data_warn">Import will replace the app\'s current data with the data from the file.</string>
+    <string name="backup_saved">Backup saved ✅</string>
+    <string name="backup_save_failed">Couldn\'t save the file</string>
+    <string name="restore_ok">Data restored successfully! 🎉</string>
+    <string name="restore_bad_format">Error: invalid JSON data format</string>
+    <string name="read_failed">Couldn\'t read the file</string>
+</resources>
