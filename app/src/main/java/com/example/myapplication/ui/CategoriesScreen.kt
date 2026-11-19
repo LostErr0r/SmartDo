@@ -34,12 +34,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.zIndex
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.R
 import com.example.myapplication.TaskViewModel
 import com.example.myapplication.data.AppData
 import com.example.myapplication.data.Category
@@ -91,10 +94,10 @@ fun CategoriesScreen(
 
     if (showAddDialog) {
         CategoryDialog(
-            title = "Новый список",
+            title = stringResource(R.string.cat_new_title),
             initialName = "",
             initialEmoji = "📁",
-            confirmText = "Создать",
+            confirmText = stringResource(R.string.create),
             onConfirm = { name, emoji ->
                 viewModel.addCategory(name, emoji)
                 showAddDialog = false
@@ -105,10 +108,10 @@ fun CategoriesScreen(
 
     editingCategory?.let { cat ->
         CategoryDialog(
-            title = "Изменить список",
+            title = stringResource(R.string.cat_edit_title),
             initialName = cat.name,
             initialEmoji = cat.emoji,
-            confirmText = "Сохранить",
+            confirmText = stringResource(R.string.save),
             onConfirm = { name, emoji ->
                 viewModel.updateCategory(cat.id, name, emoji)
                 editingCategory = null
@@ -208,7 +211,7 @@ fun CategoriesContent(
                             Spacer(Modifier.width(4.dp))
                             Icon(
                                 Icons.Default.ArrowDropDown,
-                                contentDescription = "Меню",
+                                contentDescription = stringResource(R.string.menu),
                                 tint = MaterialTheme.colorScheme.onBackground
                             )
                         }
@@ -221,7 +224,7 @@ fun CategoriesContent(
                             modifier = Modifier.background(MaterialTheme.colorScheme.surface)
                         ) {
                             DropdownMenuItem(
-                                text = { Text("Напоминания", fontWeight = FontWeight.SemiBold) },
+                                text = { Text(stringResource(R.string.nav_reminders), fontWeight = FontWeight.SemiBold) },
                                 leadingIcon = {
                                     Icon(Icons.Default.Cake, contentDescription = null, tint = Color(0xFFFF2D55))
                                 },
@@ -232,7 +235,7 @@ fun CategoriesContent(
                             )
 
                             DropdownMenuItem(
-                                text = { Text("Календарь", fontWeight = FontWeight.SemiBold) },
+                                text = { Text(stringResource(R.string.nav_calendar), fontWeight = FontWeight.SemiBold) },
                                 leadingIcon = {
                                     Icon(Icons.Default.CalendarMonth, contentDescription = null, tint = Color(0xFF007AFF))
                                 },
@@ -243,7 +246,7 @@ fun CategoriesContent(
                             )
 
                             DropdownMenuItem(
-                                text = { Text("Статистика", fontWeight = FontWeight.SemiBold) },
+                                text = { Text(stringResource(R.string.nav_stats), fontWeight = FontWeight.SemiBold) },
                                 leadingIcon = {
                                     Icon(Icons.Default.TrendingUp, contentDescription = null, tint = Color(0xFF34C759))
                                 },
@@ -254,7 +257,7 @@ fun CategoriesContent(
                             )
 
                             DropdownMenuItem(
-                                text = { Text("Архив", fontWeight = FontWeight.SemiBold) },
+                                text = { Text(stringResource(R.string.nav_archive), fontWeight = FontWeight.SemiBold) },
                                 leadingIcon = {
                                     Icon(Icons.Default.Archive, contentDescription = null, tint = Color(0xFFFF9500))
                                 },
@@ -267,7 +270,7 @@ fun CategoriesContent(
                             HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
 
                             DropdownMenuItem(
-                                text = { Text("Настройки") },
+                                text = { Text(stringResource(R.string.settings_title)) },
                                 leadingIcon = {
                                     Icon(Icons.Default.Settings, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                                 },
@@ -284,7 +287,7 @@ fun CategoriesContent(
                     IconButton(onClick = onSearchClick) {
                         Icon(
                             Icons.Default.Search,
-                            contentDescription = "Поиск",
+                            contentDescription = stringResource(R.string.search),
                             tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
@@ -301,7 +304,7 @@ fun CategoriesContent(
                         ) {
                             Icon(
                                 if (unreadNotifsCount > 0) Icons.Default.Notifications else Icons.Default.NotificationsNone,
-                                contentDescription = "Уведомления",
+                                contentDescription = stringResource(R.string.notifications),
                                 tint = MaterialTheme.colorScheme.onBackground
                             )
                         }
@@ -321,7 +324,7 @@ fun CategoriesContent(
                 shape = RoundedCornerShape(20.dp),
                 elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 4.dp)
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Новый список")
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.cat_new_title))
             }
         }
     ) { padding ->
@@ -339,7 +342,7 @@ fun CategoriesContent(
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = onSearchQueryChange,
-                    placeholder = { Text("Поиск списков и задач...") },
+                    placeholder = { Text(stringResource(R.string.search_lists_hint)) },
                     leadingIcon = {
                         Icon(
                             Icons.Default.Search,
@@ -352,7 +355,7 @@ fun CategoriesContent(
                             IconButton(onClick = { onSearchQueryChange("") }) {
                                 Icon(
                                     Icons.Default.Clear,
-                                    contentDescription = "Очистить",
+                                    contentDescription = stringResource(R.string.clear),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -419,7 +422,7 @@ fun CategoriesContent(
             // Заголовок раздела «Мои списки»
             item {
                 Text(
-                    text = "МОИ СПИСКИ",
+                    text = stringResource(R.string.my_lists),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
@@ -440,14 +443,14 @@ fun CategoriesContent(
                             Text("📁", fontSize = 48.sp)
                             Spacer(Modifier.height(12.dp))
                             Text(
-                                if (searchQuery.isNotBlank()) "Ничего не найдено" else "Нет списков",
+                                if (searchQuery.isNotBlank()) stringResource(R.string.nothing_found) else stringResource(R.string.no_lists),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Spacer(Modifier.height(4.dp))
                             Text(
-                                if (searchQuery.isNotBlank()) "Попробуйте изменить поисковый запрос" else "Создайте первый список кнопкой «+»",
+                                if (searchQuery.isNotBlank()) stringResource(R.string.search_retry) else stringResource(R.string.create_first_list),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -475,7 +478,7 @@ fun CategoriesContent(
                                 {
                                     Icon(
                                         Icons.Default.DragHandle,
-                                        contentDescription = "Перетащить",
+                                        contentDescription = stringResource(R.string.drag),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                                         modifier = Modifier
                                             .size(34.dp)
@@ -600,7 +603,7 @@ fun CategoryItemCard(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = if (activeTasks > 0) "$activeTasks задач(и)" else "Нет задач",
+                    text = if (activeTasks > 0) pluralStringResource(R.plurals.tasks_count, activeTasks, activeTasks) else stringResource(R.string.no_tasks),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -611,7 +614,7 @@ fun CategoryItemCard(
                 IconButton(onClick = onEdit) {
                     Icon(
                         Icons.Default.Edit,
-                        contentDescription = "Редактировать список",
+                        contentDescription = stringResource(R.string.edit_list),
                         tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
                         modifier = Modifier.size(20.dp)
                     )
@@ -619,7 +622,7 @@ fun CategoryItemCard(
                 IconButton(onClick = onDelete) {
                     Icon(
                         Icons.Default.DeleteOutline,
-                        contentDescription = "Удалить список",
+                        contentDescription = stringResource(R.string.delete_list),
                         tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f),
                         modifier = Modifier.size(20.dp)
                     )
@@ -653,14 +656,14 @@ fun CategoryDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Название списка") },
+                    label = { Text(stringResource(R.string.list_name)) },
                     singleLine = true,
                     shape = RoundedCornerShape(14.dp),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Text(
-                    "Выберите иконку:",
+                    stringResource(R.string.choose_icon),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -715,7 +718,7 @@ fun CategoryDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Отмена", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.cancel), color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     )

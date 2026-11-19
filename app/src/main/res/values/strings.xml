@@ -71,4 +71,101 @@
     <string name="about_feature_themes">• Светлая и глубокая тёмная темы</string>
     <string name="about_version">Версия 2.0.0</string>
     <string name="about_ok">Отлично</string>
+
+    <!-- Общие кнопки/действия -->
+    <string name="cancel">Отмена</string>
+    <string name="save">Сохранить</string>
+    <string name="add">Добавить</string>
+    <string name="delete">Удалить</string>
+    <string name="edit">Редактировать</string>
+    <string name="create">Создать</string>
+    <string name="done_btn">Готово</string>
+    <string name="choose">Выбрать</string>
+    <string name="search">Поиск</string>
+    <string name="clear">Очистить</string>
+    <string name="share">Поделиться</string>
+    <string name="menu">Меню</string>
+    <string name="drag">Перетащить</string>
+
+    <!-- Экран списков -->
+    <string name="cat_new_title">Новый список</string>
+    <string name="cat_edit_title">Изменить список</string>
+    <string name="nav_reminders">Напоминания</string>
+    <string name="nav_calendar">Календарь</string>
+    <string name="nav_stats">Статистика</string>
+    <string name="nav_archive">Архив</string>
+    <string name="notifications">Уведомления</string>
+    <string name="search_lists_hint">Поиск списков и задач…</string>
+    <string name="my_lists">МОИ СПИСКИ</string>
+    <string name="nothing_found">Ничего не найдено</string>
+    <string name="no_lists">Нет списков</string>
+    <string name="search_retry">Попробуйте изменить поисковый запрос</string>
+    <string name="create_first_list">Создайте первый список кнопкой «+»</string>
+    <string name="no_tasks">Нет задач</string>
+    <string name="edit_list">Редактировать список</string>
+    <string name="delete_list">Удалить список</string>
+    <string name="list_name">Название списка</string>
+    <string name="choose_icon">Выберите иконку:</string>
+    <plurals name="tasks_count">
+        <item quantity="one">%d задача</item>
+        <item quantity="few">%d задачи</item>
+        <item quantity="many">%d задач</item>
+        <item quantity="other">%d задач</item>
+    </plurals>
+
+    <!-- Детали категории и диалог задачи -->
+    <string name="sort">Сортировка</string>
+    <string name="share_active">Активные:</string>
+    <string name="share_completed">Завершённые:</string>
+    <string name="share_list">Поделиться списком</string>
+    <string name="task_new">Новая задача</string>
+    <string name="list_empty">Список пуст</string>
+    <string name="list_empty_hint">Нажмите «+», чтобы добавить задачу</string>
+    <string name="progress_done_of">%1$d из %2$d</string>
+    <string name="completed_count">Завершённые (%d)</string>
+    <string name="task_edit">Редактировать задачу</string>
+    <string name="delete_task_q">Удалить задачу?</string>
+    <string name="delete_task_msg">«%s» будет перемещена в архив. Это действие можно отменить в разделе «Архив».</string>
+    <string name="complete">Завершить</string>
+    <string name="prefix_done">Завершено: </string>
+    <string name="prefix_overdue">Просрочено: </string>
+    <string name="prefix_today">Сегодня: </string>
+    <string name="deadline_time">Время дедлайна</string>
+    <string name="task_what">Что нужно сделать?</string>
+    <string name="task_note">Заметка (ссылка, адрес, детали…)</string>
+    <string name="priority">Приоритет:</string>
+    <string name="priority_normal">Обычный</string>
+    <string name="delete_item">Удалить пункт</string>
+    <string name="checklist_hint_add">Добавить пункт…</string>
+    <string name="checklist_title">Чек-лист / Подзадачи (%d)</string>
+    <string name="choose_date">Выбрать дату</string>
+    <string name="remind">Напомнить</string>
+    <string name="reminder_on_time_chip">Вовремя</string>
+    <string name="reminder_15m">15 мин</string>
+    <string name="reminder_30m">30 мин</string>
+    <string name="reminder_1h">1 час</string>
+    <string name="reminder_1d">1 день</string>
+    <string name="reminder_off">Выкл</string>
+    <string name="custom_time">Своё время (число)</string>
+    <string name="unit_minutes">Минуты</string>
+    <string name="unit_hours">Часы</string>
+    <string name="unit_days">Дни</string>
+    <string name="repeat">Повтор</string>
+    <string name="repeat_none">Нет</string>
+    <string name="repeat_day">День</string>
+    <string name="repeat_week">Неделя</string>
+    <string name="repeat_month">Месяц</string>
+    <string name="repeat_year">Год</string>
+    <string name="no_deadline">✕ Без срока</string>
+
+    <!-- Подписи напоминания/повтора на карточке -->
+    <string name="reminder_none">Без уведомления</string>
+    <string name="reminder_on_time">Вовремя</string>
+    <string name="reminder_days">За %d дн.</string>
+    <string name="reminder_hours">За %d ч.</string>
+    <string name="reminder_minutes">За %d мин.</string>
+    <string name="repeat_short_daily">каждый день</string>
+    <string name="repeat_short_weekly">каждую неделю</string>
+    <string name="repeat_short_monthly">каждый месяц</string>
+    <string name="repeat_short_yearly">каждый год</string>
 </resources>

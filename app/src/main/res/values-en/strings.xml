@@ -62,4 +62,99 @@
     <string name="about_feature_themes">• Light and deep dark themes</string>
     <string name="about_version">Version 2.0.0</string>
     <string name="about_ok">Great</string>
+
+    <!-- Common buttons/actions -->
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="add">Add</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="create">Create</string>
+    <string name="done_btn">Done</string>
+    <string name="choose">Select</string>
+    <string name="search">Search</string>
+    <string name="clear">Clear</string>
+    <string name="share">Share</string>
+    <string name="menu">Menu</string>
+    <string name="drag">Drag</string>
+
+    <!-- Lists screen -->
+    <string name="cat_new_title">New list</string>
+    <string name="cat_edit_title">Edit list</string>
+    <string name="nav_reminders">Reminders</string>
+    <string name="nav_calendar">Calendar</string>
+    <string name="nav_stats">Statistics</string>
+    <string name="nav_archive">Archive</string>
+    <string name="notifications">Notifications</string>
+    <string name="search_lists_hint">Search lists and tasks…</string>
+    <string name="my_lists">MY LISTS</string>
+    <string name="nothing_found">Nothing found</string>
+    <string name="no_lists">No lists</string>
+    <string name="search_retry">Try changing your search query</string>
+    <string name="create_first_list">Create your first list with the “+” button</string>
+    <string name="no_tasks">No tasks</string>
+    <string name="edit_list">Edit list</string>
+    <string name="delete_list">Delete list</string>
+    <string name="list_name">List name</string>
+    <string name="choose_icon">Choose an icon:</string>
+    <plurals name="tasks_count">
+        <item quantity="one">%d task</item>
+        <item quantity="other">%d tasks</item>
+    </plurals>
+
+    <!-- Category details and task dialog -->
+    <string name="sort">Sort</string>
+    <string name="share_active">Active:</string>
+    <string name="share_completed">Completed:</string>
+    <string name="share_list">Share list</string>
+    <string name="task_new">New task</string>
+    <string name="list_empty">The list is empty</string>
+    <string name="list_empty_hint">Tap “+” to add a task</string>
+    <string name="progress_done_of">%1$d of %2$d</string>
+    <string name="completed_count">Completed (%d)</string>
+    <string name="task_edit">Edit task</string>
+    <string name="delete_task_q">Delete task?</string>
+    <string name="delete_task_msg">“%s” will be moved to the archive. You can undo this in the Archive section.</string>
+    <string name="complete">Complete</string>
+    <string name="prefix_done">Completed: </string>
+    <string name="prefix_overdue">Overdue: </string>
+    <string name="prefix_today">Today: </string>
+    <string name="deadline_time">Deadline time</string>
+    <string name="task_what">What needs to be done?</string>
+    <string name="task_note">Note (link, address, details…)</string>
+    <string name="priority">Priority:</string>
+    <string name="priority_normal">Normal</string>
+    <string name="delete_item">Delete item</string>
+    <string name="checklist_hint_add">Add an item…</string>
+    <string name="checklist_title">Checklist / Subtasks (%d)</string>
+    <string name="choose_date">Pick a date</string>
+    <string name="remind">Remind</string>
+    <string name="reminder_on_time_chip">On time</string>
+    <string name="reminder_15m">15 min</string>
+    <string name="reminder_30m">30 min</string>
+    <string name="reminder_1h">1 hour</string>
+    <string name="reminder_1d">1 day</string>
+    <string name="reminder_off">Off</string>
+    <string name="custom_time">Custom time (number)</string>
+    <string name="unit_minutes">Minutes</string>
+    <string name="unit_hours">Hours</string>
+    <string name="unit_days">Days</string>
+    <string name="repeat">Repeat</string>
+    <string name="repeat_none">None</string>
+    <string name="repeat_day">Day</string>
+    <string name="repeat_week">Week</string>
+    <string name="repeat_month">Month</string>
+    <string name="repeat_year">Year</string>
+    <string name="no_deadline">✕ No deadline</string>
+
+    <!-- Reminder/repeat labels on the card -->
+    <string name="reminder_none">No reminder</string>
+    <string name="reminder_on_time">On time</string>
+    <string name="reminder_days">%d d before</string>
+    <string name="reminder_hours">%d h before</string>
+    <string name="reminder_minutes">%d min before</string>
+    <string name="repeat_short_daily">every day</string>
+    <string name="repeat_short_weekly">every week</string>
+    <string name="repeat_short_monthly">every month</string>
+    <string name="repeat_short_yearly">every year</string>
 </resources>

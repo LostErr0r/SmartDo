@@ -49,6 +49,7 @@ import androidx.compose.ui.zIndex
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.input.KeyboardType
@@ -58,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.R
 import com.example.myapplication.TaskViewModel
 import com.example.myapplication.data.Category
 import com.example.myapplication.data.Subtask
@@ -65,8 +67,8 @@ import com.example.myapplication.data.Task
 import java.text.SimpleDateFormat
 import java.util.*
 
-private val dateTimeFormatter = SimpleDateFormat("d MMM, HH:mm", Locale("ru"))
-private val dateFormatter = SimpleDateFormat("d MMM yyyy", Locale("ru"))
+private val dateTimeFormatter get() = SimpleDateFormat("d MMM, HH:mm", Locale.getDefault())
+private val dateFormatter get() = SimpleDateFormat("d MMM yyyy", Locale.getDefault())
 
 fun playAppClickSound() {
     try {
@@ -94,12 +96,13 @@ fun Task.isDueToday(): Boolean {
     return dl in todayStart until todayEnd && !isDone
 }
 
+@Composable
 fun reminderLabel(minutes: Int?): String = when {
-    minutes == null -> "Без уведомления"
-    minutes == 0 -> "Вовремя"
-    minutes % 1440 == 0 -> "За ${minutes / 1440} дн."
-    minutes % 60 == 0 -> "За ${minutes / 60} ч."
-    else -> "За $minutes мин."
+    minutes == null -> stringResource(R.string.reminder_none)
+    minutes == 0 -> stringResource(R.string.reminder_on_time)
+    minutes % 1440 == 0 -> stringResource(R.string.reminder_days, minutes / 1440)
+    minutes % 60 == 0 -> stringResource(R.string.reminder_hours, minutes / 60)
+    else -> stringResource(R.string.reminder_minutes, minutes)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -152,11 +155,12 @@ fun sortModeLabel(mode: String): String = when (mode) {
 }
 
 /** Короткая подпись повтора для карточки задачи. */
+@Composable
 fun repeatLabelShort(rule: String): String = when (rule) {
-    "daily" -> "каждый день"
-    "weekly" -> "каждую неделю"
-    "monthly" -> "каждый месяц"
-    "yearly" -> "каждый год"
+    "daily" -> stringResource(R.string.repeat_short_daily)
+    "weekly" -> stringResource(R.string.repeat_short_weekly)
+    "monthly" -> stringResource(R.string.repeat_short_monthly)
+    "yearly" -> stringResource(R.string.repeat_short_yearly)
     else -> ""
 }
 
@@ -240,7 +244,7 @@ fun CategoryDetailContent(
                         Spacer(Modifier.width(6.dp))
                         Icon(
                             Icons.Default.Edit,
-                            contentDescription = "Изменить список",
+                            contentDescription = stringResource(R.string.edit_list),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                             modifier = Modifier.size(16.dp)
                         )
@@ -250,7 +254,7 @@ fun CategoryDetailContent(
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Назад",
+                            contentDescription = stringResource(R.string.back),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -260,7 +264,7 @@ fun CategoryDetailContent(
                     IconButton(onClick = { sortMenuExpanded = true }) {
                         Icon(
                             Icons.AutoMirrored.Filled.Sort,
-                            contentDescription = "Сортировка",
+                            contentDescription = stringResource(R.string.sort),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -270,7 +274,7 @@ fun CategoryDetailContent(
                             appendLine("${category.emoji} ${category.name}")
                             appendLine()
                             if (activeTasks.isNotEmpty()) {
-                                appendLine("Активные:")
+                                appendLine(context.getString(R.string.share_active))
                                 activeTasks.forEach { task ->
                                     val deadline = task.deadlineLabel()?.let { " ($it)" } ?: ""
                                     appendLine("☐ ${task.title}$deadline")
@@ -284,7 +288,7 @@ fun CategoryDetailContent(
                             }
                             if (completedTasks.isNotEmpty()) {
                                 appendLine()
-                                appendLine("Завершённые:")
+                                appendLine(context.getString(R.string.share_completed))
                                 completedTasks.forEach { task ->
                                     appendLine("☑ ${task.title}")
                                 }
@@ -295,11 +299,11 @@ fun CategoryDetailContent(
                             putExtra(Intent.EXTRA_SUBJECT, category.name)
                             putExtra(Intent.EXTRA_TEXT, shareText)
                         }
-                        context.startActivity(Intent.createChooser(intent, "Поделиться списком"))
+                        context.startActivity(Intent.createChooser(intent, context.getString(R.string.share_list)))
                     }) {
                         Icon(
                             Icons.Default.Share,
-                            contentDescription = "Поделиться",
+                            contentDescription = stringResource(R.string.share),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -318,7 +322,7 @@ fun CategoryDetailContent(
                 shape = RoundedCornerShape(20.dp),
                 elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 4.dp)
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Новая задача")
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.task_new))
             }
         }
     ) { padding ->
@@ -334,14 +338,14 @@ fun CategoryDetailContent(
                         Text("✨", fontSize = 48.sp)
                         Spacer(Modifier.height(14.dp))
                         Text(
-                            "Список пуст",
+                            stringResource(R.string.list_empty),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            "Нажмите «+», чтобы добавить задачу",
+                            stringResource(R.string.list_empty_hint),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -368,7 +372,7 @@ fun CategoryDetailContent(
                     )
                     Spacer(Modifier.width(12.dp))
                     Text(
-                        "$done из $total",
+                        stringResource(R.string.progress_done_of, done, total),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -403,7 +407,7 @@ fun CategoryDetailContent(
                                     {
                                         Icon(
                                             Icons.Default.DragHandle,
-                                            contentDescription = "Перетащить",
+                                            contentDescription = stringResource(R.string.drag),
                                             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                                             modifier = Modifier
                                                 .size(34.dp)
@@ -433,7 +437,7 @@ fun CategoryDetailContent(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    "Завершённые (${completedTasks.size})",
+                                    stringResource(R.string.completed_count, completedTasks.size),
                                     style = MaterialTheme.typography.labelLarge,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -466,7 +470,7 @@ fun CategoryDetailContent(
 
     if (showAddDialog) {
         TaskDialog(
-            dialogTitle = "Новая задача",
+            dialogTitle = stringResource(R.string.task_new),
             initialTitle = "",
             initialDescription = "",
             initialPriority = 0,
@@ -474,7 +478,7 @@ fun CategoryDetailContent(
             initialReminderMinutes = 15,
             initialSubtasks = emptyList(),
             initialRepeatRule = "none",
-            confirmButtonText = "Добавить",
+            confirmButtonText = stringResource(R.string.add),
             onConfirm = { title, desc, priority, deadline, reminder, subtasks, repeat ->
                 onAddTask(title, desc, priority, deadline, reminder, subtasks, repeat)
                 showAddDialog = false
@@ -485,7 +489,7 @@ fun CategoryDetailContent(
 
     editingTask?.let { task ->
         TaskDialog(
-            dialogTitle = "Редактировать задачу",
+            dialogTitle = stringResource(R.string.task_edit),
             initialTitle = task.title,
             initialDescription = task.description,
             initialPriority = task.priority,
@@ -493,7 +497,7 @@ fun CategoryDetailContent(
             initialReminderMinutes = task.reminderMinutesBefore,
             initialSubtasks = task.subtasks,
             initialRepeatRule = task.repeatRule,
-            confirmButtonText = "Сохранить",
+            confirmButtonText = stringResource(R.string.save),
             onConfirm = { title, desc, priority, deadline, reminder, subtasks, repeat ->
                 onEditTask(task.id, title, desc, priority, deadline, reminder, subtasks, repeat)
                 editingTask = null
@@ -504,10 +508,10 @@ fun CategoryDetailContent(
 
     if (showEditCategoryDialog) {
         CategoryDialog(
-            title = "Изменить список",
+            title = stringResource(R.string.cat_edit_title),
             initialName = category.name,
             initialEmoji = category.emoji,
-            confirmText = "Сохранить",
+            confirmText = stringResource(R.string.save),
             onConfirm = { newName, newEmoji ->
                 onEditCategory(newName, newEmoji)
                 showEditCategoryDialog = false
@@ -568,8 +572,8 @@ fun SwipeableTaskCard(
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
             shape = RoundedCornerShape(22.dp),
-            title = { Text("Удалить задачу?", fontWeight = FontWeight.Bold) },
-            text = { Text("«${task.title}» будет перемещена в архив. Это действие можно отменить в разделе «Архив».") },
+            title = { Text(stringResource(R.string.delete_task_q), fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.delete_task_msg, task.title)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -578,10 +582,10 @@ fun SwipeableTaskCard(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                     shape = RoundedCornerShape(12.dp)
-                ) { Text("Удалить", fontWeight = FontWeight.SemiBold) }
+                ) { Text(stringResource(R.string.delete), fontWeight = FontWeight.SemiBold) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteConfirm = false }) { Text("Отмена") }
+                TextButton(onClick = { showDeleteConfirm = false }) { Text(stringResource(R.string.cancel)) }
             }
         )
     }
@@ -613,13 +617,13 @@ fun SwipeableTaskCard(
                 if (direction == SwipeToDismissBoxValue.StartToEnd) {
                     Icon(
                         Icons.Default.Done,
-                        contentDescription = "Завершить",
+                        contentDescription = stringResource(R.string.complete),
                         tint = Color.White
                     )
                 } else if (direction == SwipeToDismissBoxValue.EndToStart) {
                     Icon(
                         Icons.Default.Delete,
-                        contentDescription = "Удалить",
+                        contentDescription = stringResource(R.string.delete),
                         tint = Color.White
                     )
                 }
@@ -740,9 +744,9 @@ fun AppleTaskCard(
                             else        -> MaterialTheme.colorScheme.onSurfaceVariant
                         }
                         val prefix = when {
-                            task.isDone -> "Завершено: "
-                            overdue     -> "Просрочено: "
-                            dueToday    -> "Сегодня: "
+                            task.isDone -> stringResource(R.string.prefix_done)
+                            overdue     -> stringResource(R.string.prefix_overdue)
+                            dueToday    -> stringResource(R.string.prefix_today)
                             else        -> ""
                         }
 
@@ -785,7 +789,7 @@ fun AppleTaskCard(
                     ) {
                         Icon(
                             Icons.Default.Edit,
-                            contentDescription = "Редактировать",
+                            contentDescription = stringResource(R.string.edit),
                             tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f),
                             modifier = Modifier.size(18.dp)
                         )
@@ -988,10 +992,10 @@ fun TaskDialog(
                     selectedDateMillis = datePickerState.selectedDateMillis
                     hasDeadline = true
                     showDatePicker = false
-                }) { Text("Выбрать", fontWeight = FontWeight.SemiBold) }
+                }) { Text(stringResource(R.string.choose), fontWeight = FontWeight.SemiBold) }
             },
             dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) { Text("Отмена") }
+                TextButton(onClick = { showDatePicker = false }) { Text(stringResource(R.string.cancel)) }
             }
         ) {
             DatePicker(state = datePickerState)
@@ -1000,7 +1004,7 @@ fun TaskDialog(
         AlertDialog(
             onDismissRequest = { showTimePicker = false },
             shape = RoundedCornerShape(24.dp),
-            title = { Text("Время дедлайна", fontWeight = FontWeight.Bold) },
+            title = { Text(stringResource(R.string.deadline_time), fontWeight = FontWeight.Bold) },
             text = {
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                     TimePicker(state = timePickerState)
@@ -1012,10 +1016,10 @@ fun TaskDialog(
                     selectedMinute = timePickerState.minute
                     hasDeadline = true
                     showTimePicker = false
-                }) { Text("Готово", fontWeight = FontWeight.SemiBold) }
+                }) { Text(stringResource(R.string.done_btn), fontWeight = FontWeight.SemiBold) }
             },
             dismissButton = {
-                TextButton(onClick = { showTimePicker = false }) { Text("Отмена") }
+                TextButton(onClick = { showTimePicker = false }) { Text(stringResource(R.string.cancel)) }
             }
         )
     } else {
@@ -1032,7 +1036,7 @@ fun TaskDialog(
                     OutlinedTextField(
                         value = title,
                         onValueChange = { title = it },
-                        label = { Text("Что нужно сделать?") },
+                        label = { Text(stringResource(R.string.task_what)) },
                         singleLine = true,
                         shape = RoundedCornerShape(14.dp),
                         modifier = Modifier.fillMaxWidth()
@@ -1041,7 +1045,7 @@ fun TaskDialog(
                     OutlinedTextField(
                         value = description,
                         onValueChange = { description = it },
-                        label = { Text("Заметка (ссылка, адрес, детали...)") },
+                        label = { Text(stringResource(R.string.task_note)) },
                         minLines = 2,
                         maxLines = 2,
                         shape = RoundedCornerShape(14.dp),
@@ -1051,7 +1055,7 @@ fun TaskDialog(
                     // Приоритеты: 0 (Обычный), 1 (Средний !!), 2 (Высокий !!!)
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text(
-                            "Приоритет:",
+                            stringResource(R.string.priority),
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1061,7 +1065,7 @@ fun TaskDialog(
                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             listOf(
-                                Triple(0, "Обычный", MaterialTheme.colorScheme.onSurfaceVariant),
+                                Triple(0, stringResource(R.string.priority_normal), MaterialTheme.colorScheme.onSurfaceVariant),
                                 Triple(1, "!!", Color(0xFFFF9500)),
                                 Triple(2, "!!!", Color(0xFFFF3B30))
                             ).forEach { (level, label, color) ->
@@ -1097,7 +1101,7 @@ fun TaskDialog(
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Text(
-                            "Чек-лист / Подзадачи (${subtasks.size})",
+                            stringResource(R.string.checklist_title, subtasks.size),
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1122,7 +1126,7 @@ fun TaskDialog(
                                 ) {
                                     Icon(
                                         Icons.Default.Clear,
-                                        contentDescription = "Удалить пункт",
+                                        contentDescription = stringResource(R.string.delete_item),
                                         tint = MaterialTheme.colorScheme.error,
                                         modifier = Modifier.size(14.dp)
                                     )
@@ -1137,7 +1141,7 @@ fun TaskDialog(
                             OutlinedTextField(
                                 value = newSubtaskText,
                                 onValueChange = { newSubtaskText = it },
-                                placeholder = { Text("Добавить пункт...", fontSize = 12.sp) },
+                                placeholder = { Text(stringResource(R.string.checklist_hint_add), fontSize = 12.sp) },
                                 singleLine = true,
                                 shape = RoundedCornerShape(10.dp),
                                 modifier = Modifier.weight(1f)
@@ -1154,7 +1158,7 @@ fun TaskDialog(
                             ) {
                                 Icon(
                                     Icons.Default.Add,
-                                    contentDescription = "Добавить",
+                                    contentDescription = stringResource(R.string.add),
                                     tint = if (newSubtaskText.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
                                 )
                             }
@@ -1178,7 +1182,7 @@ fun TaskDialog(
                                 if (hasDeadline && selectedDateMillis != null)
                                     dateFormatter.format(Date(selectedDateMillis!!))
                                 else
-                                    "Выбрать дату",
+                                    stringResource(R.string.choose_date),
                                 fontSize = 13.sp,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
@@ -1203,7 +1207,7 @@ fun TaskDialog(
 
                     if (hasDeadline) {
                         Text(
-                            "Напомнить",
+                            stringResource(R.string.remind),
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1211,12 +1215,12 @@ fun TaskDialog(
 
                         val isCustomReminder = customReminderText.isNotBlank()
                         val reminderPresets: List<Pair<Int?, String>> = listOf(
-                            0 to "Вовремя",
-                            15 to "15 мин",
-                            30 to "30 мин",
-                            60 to "1 час",
-                            1440 to "1 день",
-                            null to "Выкл"
+                            0 to stringResource(R.string.reminder_on_time_chip),
+                            15 to stringResource(R.string.reminder_15m),
+                            30 to stringResource(R.string.reminder_30m),
+                            60 to stringResource(R.string.reminder_1h),
+                            1440 to stringResource(R.string.reminder_1d),
+                            null to stringResource(R.string.reminder_off)
                         )
 
                         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -1261,7 +1265,7 @@ fun TaskDialog(
                                         selectedReminder = number * customUnit
                                     }
                                 },
-                                placeholder = { Text("Своё время (число)", fontSize = 12.sp) },
+                                placeholder = { Text(stringResource(R.string.custom_time), fontSize = 12.sp) },
                                 leadingIcon = {
                                     Icon(Icons.Default.Schedule, contentDescription = null, modifier = Modifier.size(16.dp))
                                 },
@@ -1276,9 +1280,9 @@ fun TaskDialog(
                                 horizontalArrangement = Arrangement.spacedBy(6.dp)
                             ) {
                                 listOf(
-                                    "Минуты" to 1,
-                                    "Часы" to 60,
-                                    "Дни" to 1440
+                                    stringResource(R.string.unit_minutes) to 1,
+                                    stringResource(R.string.unit_hours) to 60,
+                                    stringResource(R.string.unit_days) to 1440
                                 ).forEach { (unitLabel, mult) ->
                                     val isSelected = isCustomReminder && customUnit == mult
                                     FilterChip(
@@ -1309,7 +1313,7 @@ fun TaskDialog(
 
                         Spacer(Modifier.height(2.dp))
                         Text(
-                            "Повтор",
+                            stringResource(R.string.repeat),
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1321,11 +1325,11 @@ fun TaskDialog(
                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             listOf(
-                                "none" to "Нет",
-                                "daily" to "День",
-                                "weekly" to "Неделя",
-                                "monthly" to "Месяц",
-                                "yearly" to "Год"
+                                "none" to stringResource(R.string.repeat_none),
+                                "daily" to stringResource(R.string.repeat_day),
+                                "weekly" to stringResource(R.string.repeat_week),
+                                "monthly" to stringResource(R.string.repeat_month),
+                                "yearly" to stringResource(R.string.repeat_year)
                             ).forEach { (rule, label) ->
                                 FilterChip(
                                     selected = repeatRule == rule,
@@ -1340,7 +1344,7 @@ fun TaskDialog(
                             onClick = { hasDeadline = false },
                             modifier = Modifier.align(Alignment.End)
                         ) {
-                            Text("✕ Без срока", color = MaterialTheme.colorScheme.error, fontSize = 13.sp)
+                            Text(stringResource(R.string.no_deadline), color = MaterialTheme.colorScheme.error, fontSize = 13.sp)
                         }
                     }
                 }
@@ -1377,7 +1381,7 @@ fun TaskDialog(
             },
             dismissButton = {
                 TextButton(onClick = onDismiss) {
-                    Text("Отмена", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.cancel), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         )
