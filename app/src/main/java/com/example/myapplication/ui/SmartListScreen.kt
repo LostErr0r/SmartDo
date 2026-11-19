@@ -8,7 +8,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Sort
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -118,48 +117,12 @@ fun SmartListScreen(
                     }
                 },
                 actions = {
-                    Box {
-                        IconButton(onClick = { sortMenuExpanded = true }) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.Sort,
-                                contentDescription = "Сортировка",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                        DropdownMenu(
-                            expanded = sortMenuExpanded,
-                            onDismissRequest = { sortMenuExpanded = false }
-                        ) {
-                            listOf("manual", "deadline", "priority", "alphabetical").forEach { mode ->
-                                DropdownMenuItem(
-                                    text = { Text(sortModeLabel(mode)) },
-                                    trailingIcon = {
-                                        if (sortMode == mode) {
-                                            Icon(
-                                                Icons.Default.Check,
-                                                contentDescription = null,
-                                                tint = MaterialTheme.colorScheme.primary
-                                            )
-                                        }
-                                    },
-                                    onClick = {
-                                        viewModel.setTaskSortMode(mode)
-                                        sortMenuExpanded = false
-                                    }
-                                )
-                            }
-                            HorizontalDivider()
-                            DropdownMenuItem(
-                                text = { Text("Скрывать выполненные") },
-                                trailingIcon = {
-                                    Switch(
-                                        checked = hideCompletedTasks,
-                                        onCheckedChange = { viewModel.setHideCompleted(it) }
-                                    )
-                                },
-                                onClick = { viewModel.setHideCompleted(!hideCompletedTasks) }
-                            )
-                        }
+                    IconButton(onClick = { sortMenuExpanded = true }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.Sort,
+                            contentDescription = "Сортировка",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -264,6 +227,16 @@ fun SmartListScreen(
                 editingTaskWithCategory = null
             },
             onDismiss = { editingTaskWithCategory = null }
+        )
+    }
+
+    if (sortMenuExpanded) {
+        SortFilterSheet(
+            sortMode = sortMode,
+            hideCompleted = hideCompletedTasks,
+            onSortModeChange = { viewModel.setTaskSortMode(it) },
+            onHideCompletedChange = { viewModel.setHideCompleted(it) },
+            onDismiss = { sortMenuExpanded = false }
         )
     }
 }

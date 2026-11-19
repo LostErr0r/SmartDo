@@ -242,49 +242,13 @@ fun CategoryDetailContent(
                     }
                 },
                 actions = {
-                    // Меню сортировки / фильтра
-                    Box {
-                        IconButton(onClick = { sortMenuExpanded = true }) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.Sort,
-                                contentDescription = "Сортировка",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                        DropdownMenu(
-                            expanded = sortMenuExpanded,
-                            onDismissRequest = { sortMenuExpanded = false }
-                        ) {
-                            listOf("manual", "deadline", "priority", "alphabetical").forEach { mode ->
-                                DropdownMenuItem(
-                                    text = { Text(sortModeLabel(mode)) },
-                                    trailingIcon = {
-                                        if (sortMode == mode) {
-                                            Icon(
-                                                Icons.Default.Check,
-                                                contentDescription = null,
-                                                tint = MaterialTheme.colorScheme.primary
-                                            )
-                                        }
-                                    },
-                                    onClick = {
-                                        onSortModeChange(mode)
-                                        sortMenuExpanded = false
-                                    }
-                                )
-                            }
-                            HorizontalDivider()
-                            DropdownMenuItem(
-                                text = { Text("Скрывать выполненные") },
-                                trailingIcon = {
-                                    Switch(
-                                        checked = hideCompleted,
-                                        onCheckedChange = { onHideCompletedChange(it) }
-                                    )
-                                },
-                                onClick = { onHideCompletedChange(!hideCompleted) }
-                            )
-                        }
+                    // Сортировка / фильтр
+                    IconButton(onClick = { sortMenuExpanded = true }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.Sort,
+                            contentDescription = "Сортировка",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
                     // Кнопка «Поделиться списком»
                     IconButton(onClick = {
@@ -503,6 +467,16 @@ fun CategoryDetailContent(
                 showEditCategoryDialog = false
             },
             onDismiss = { showEditCategoryDialog = false }
+        )
+    }
+
+    if (sortMenuExpanded) {
+        SortFilterSheet(
+            sortMode = sortMode,
+            hideCompleted = hideCompleted,
+            onSortModeChange = onSortModeChange,
+            onHideCompletedChange = onHideCompletedChange,
+            onDismiss = { sortMenuExpanded = false }
         )
     }
 }
