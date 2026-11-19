@@ -28,7 +28,6 @@ import com.example.myapplication.ui.NotificationsScreen
 import com.example.myapplication.ui.AppSettingsScreen
 import com.example.myapplication.ui.CalendarScreen
 import com.example.myapplication.ui.DataTransferScreen
-import com.example.myapplication.ui.LocalConfirmDelete
 import com.example.myapplication.ui.LocalHapticsEnabled
 import com.example.myapplication.ui.LocalSoundEnabled
 import com.example.myapplication.ui.SearchScreen
@@ -107,8 +106,7 @@ class MainActivity : ComponentActivity() {
 
                     CompositionLocalProvider(
                         LocalSoundEnabled provides appData.soundEnabled,
-                        LocalHapticsEnabled provides appData.hapticsEnabled,
-                        LocalConfirmDelete provides appData.confirmDeleteEnabled
+                        LocalHapticsEnabled provides appData.hapticsEnabled
                     ) {
                     when (val screen = currentScreen) {
                         is Screen.Categories -> {

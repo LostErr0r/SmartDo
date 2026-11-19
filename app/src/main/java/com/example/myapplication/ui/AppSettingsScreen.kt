@@ -5,7 +5,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
-import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -91,25 +90,6 @@ fun AppSettingsScreen(
                         subtitle = "Тактильный отклик при нажатиях",
                         checked = appData.hapticsEnabled,
                         onCheckedChange = { viewModel.setHapticsEnabled(it) }
-                    )
-                }
-            }
-
-            SectionLabel("Задачи")
-
-            Surface(
-                shape = RoundedCornerShape(18.dp),
-                color = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column {
-                    SettingsSwitchRow(
-                        icon = Icons.Default.DeleteOutline,
-                        iconTint = Color(0xFFFF3B30),
-                        title = "Подтверждение удаления",
-                        subtitle = "Спрашивать перед удалением задачи",
-                        checked = appData.confirmDeleteEnabled,
-                        onCheckedChange = { viewModel.setConfirmDeleteEnabled(it) }
                     )
                 }
             }

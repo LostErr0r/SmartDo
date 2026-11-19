@@ -9,6 +9,3 @@ import androidx.compose.runtime.compositionLocalOf
  */
 val LocalSoundEnabled = compositionLocalOf { true }
 val LocalHapticsEnabled = compositionLocalOf { true }
-
-/** Нужно ли спрашивать подтверждение перед удалением задачи. */
-val LocalConfirmDelete = compositionLocalOf { false }

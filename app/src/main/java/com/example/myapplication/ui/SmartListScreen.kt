@@ -21,7 +21,6 @@ import com.example.myapplication.TaskViewModel
 import com.example.myapplication.data.Category
 import com.example.myapplication.data.SmartListType
 import com.example.myapplication.data.Task
-import kotlinx.coroutines.launch
 
 data class TaskWithCategory(
     val task: Task,
@@ -46,23 +45,9 @@ fun SmartListScreen(
     val appData by viewModel.appData.collectAsStateWithLifecycle()
     var editingTaskWithCategory by remember { mutableStateOf<TaskWithCategory?>(null) }
 
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
     var sortMenuExpanded by remember { mutableStateOf(false) }
     val sortMode = appData.taskSortMode
     val hideCompletedTasks = appData.hideCompleted
-
-    val deleteWithUndo: (Long) -> Unit = { taskId ->
-        viewModel.deleteTaskGlobal(taskId)
-        scope.launch {
-            val result = snackbarHostState.showSnackbar(
-                message = "Задача удалена",
-                actionLabel = "Отменить",
-                duration = SnackbarDuration.Short
-            )
-            if (result == SnackbarResult.ActionPerformed) viewModel.undoDelete()
-        }
-    }
 
     // Собираем задачи по типу умного списка
     val allTasksWithCategory = remember(appData, type) {
@@ -92,7 +77,6 @@ fun SmartListScreen(
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -172,7 +156,7 @@ fun SmartListScreen(
                             onToggle = { viewModel.toggleTaskGlobal(item.task.id) },
                             onToggleSubtask = { subId -> viewModel.toggleSubtaskGlobal(item.task.id, subId) },
                             onEdit = { editingTaskWithCategory = item },
-                            onDelete = { deleteWithUndo(item.task.id) }
+                            onDelete = { viewModel.deleteTaskGlobal(item.task.id) }
                         )
                     }
                 }
@@ -195,7 +179,7 @@ fun SmartListScreen(
                             onToggle = { viewModel.toggleTaskGlobal(item.task.id) },
                             onToggleSubtask = { subId -> viewModel.toggleSubtaskGlobal(item.task.id, subId) },
                             onEdit = { editingTaskWithCategory = item },
-                            onDelete = { deleteWithUndo(item.task.id) }
+                            onDelete = { viewModel.deleteTaskGlobal(item.task.id) }
                         )
                     }
                 }

@@ -62,7 +62,6 @@ import com.example.myapplication.TaskViewModel
 import com.example.myapplication.data.Category
 import com.example.myapplication.data.Subtask
 import com.example.myapplication.data.Task
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -132,7 +131,6 @@ fun CategoryDetailScreen(
         onToggleTask = { taskId -> viewModel.toggleTask(categoryId, taskId) },
         onToggleSubtask = { taskId, subtaskId -> viewModel.toggleSubtask(categoryId, taskId, subtaskId) },
         onDeleteTask = { taskId -> viewModel.deleteTask(categoryId, taskId) },
-        onUndoDelete = { viewModel.undoDelete() },
         onReorderTasks = { ids -> viewModel.reorderTasks(categoryId, ids) }
     )
 }
@@ -177,12 +175,9 @@ fun CategoryDetailContent(
     onToggleTask: (Long) -> Unit,
     onToggleSubtask: (Long, Long) -> Unit,
     onDeleteTask: (Long) -> Unit,
-    onUndoDelete: () -> Unit = {},
     onReorderTasks: (List<Long>) -> Unit = {}
 ) {
     val context = LocalContext.current
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
     var showAddDialog by remember { mutableStateOf(false) }
     var editingTask by remember { mutableStateOf<Task?>(null) }
     var showEditCategoryDialog by remember { mutableStateOf(false) }
@@ -194,19 +189,6 @@ fun CategoryDetailContent(
     }
     val completedTasks = remember(category.tasks, sortMode) {
         category.tasks.filter { it.isDone }.sortedByMode(sortMode)
-    }
-
-    // Удаление с возможностью отмены через Snackbar.
-    val deleteWithUndo: (Long) -> Unit = { taskId ->
-        onDeleteTask(taskId)
-        scope.launch {
-            val result = snackbarHostState.showSnackbar(
-                message = "Задача удалена",
-                actionLabel = "Отменить",
-                duration = SnackbarDuration.Short
-            )
-            if (result == SnackbarResult.ActionPerformed) onUndoDelete()
-        }
     }
 
     // Перетаскивание задач «за ручку» (только в ручном режиме сортировки).
@@ -226,7 +208,6 @@ fun CategoryDetailContent(
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -417,7 +398,7 @@ fun CategoryDetailContent(
                                 onToggle = { onToggleTask(task.id) },
                                 onToggleSubtask = { subId -> onToggleSubtask(task.id, subId) },
                                 onEdit = { editingTask = task },
-                                onDelete = { deleteWithUndo(task.id) },
+                                onDelete = { onDeleteTask(task.id) },
                                 dragHandle = if (dragEnabled) {
                                     {
                                         Icon(
@@ -560,7 +541,6 @@ fun SwipeableTaskCard(
     val haptic = LocalHapticFeedback.current
     val soundOn = LocalSoundEnabled.current
     val hapticsOn = LocalHapticsEnabled.current
-    val confirmDelete = LocalConfirmDelete.current
     var showDeleteConfirm by remember { mutableStateOf(false) }
 
     val dismissState = rememberSwipeToDismissBoxState(
@@ -574,16 +554,10 @@ fun SwipeableTaskCard(
                     false
                 }
                 SwipeToDismissBoxValue.EndToStart -> {
-                    // Смахнули влево -> удалить
+                    // Смахнули влево -> запросить подтверждение (карточка возвращается на место).
                     if (hapticsOn) haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    if (confirmDelete) {
-                        // Показываем подтверждение и не убираем карточку.
-                        showDeleteConfirm = true
-                        false
-                    } else {
-                        onDelete()
-                        true
-                    }
+                    showDeleteConfirm = true
+                    false
                 }
                 SwipeToDismissBoxValue.Settled -> false
             }
@@ -595,13 +569,14 @@ fun SwipeableTaskCard(
             onDismissRequest = { showDeleteConfirm = false },
             shape = RoundedCornerShape(22.dp),
             title = { Text("Удалить задачу?", fontWeight = FontWeight.Bold) },
-            text = { Text("«${task.title}» будет перемещена в архив.") },
+            text = { Text("«${task.title}» будет перемещена в архив. Это действие можно отменить в разделе «Архив».") },
             confirmButton = {
                 Button(
                     onClick = {
                         showDeleteConfirm = false
                         onDelete()
                     },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                     shape = RoundedCornerShape(12.dp)
                 ) { Text("Удалить", fontWeight = FontWeight.SemiBold) }
             },
@@ -656,7 +631,6 @@ fun SwipeableTaskCard(
             onToggle = onToggle,
             onToggleSubtask = onToggleSubtask,
             onEdit = onEdit,
-            onDelete = onDelete,
             dragHandle = dragHandle
         )
     }
@@ -668,7 +642,6 @@ fun AppleTaskCard(
     onToggle: () -> Unit,
     onToggleSubtask: (Long) -> Unit = {},
     onEdit: () -> Unit,
-    onDelete: () -> Unit,
     dragHandle: (@Composable () -> Unit)? = null
 ) {
     val overdue = task.isOverdue()
@@ -815,18 +788,6 @@ fun AppleTaskCard(
                             contentDescription = "Редактировать",
                             tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f),
                             modifier = Modifier.size(18.dp)
-                        )
-                    }
-
-                    IconButton(
-                        onClick = onDelete,
-                        modifier = Modifier.size(34.dp)
-                    ) {
-                        Icon(
-                            Icons.Default.DeleteOutline,
-                            contentDescription = "Удалить",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                            modifier = Modifier.size(19.dp)
                         )
                     }
                 }

@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.myapplication.TaskViewModel
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,8 +28,6 @@ fun SearchScreen(
     val appData by viewModel.appData.collectAsStateWithLifecycle()
     var query by remember { mutableStateOf("") }
     var editingTaskWithCategory by remember { mutableStateOf<TaskWithCategory?>(null) }
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
 
     val results = remember(appData, query) {
         val q = query.trim().lowercase()
@@ -51,21 +48,8 @@ fun SearchScreen(
         }
     }
 
-    val deleteWithUndo: (Long) -> Unit = { taskId ->
-        viewModel.deleteTaskGlobal(taskId)
-        scope.launch {
-            val result = snackbarHostState.showSnackbar(
-                message = "Задача удалена",
-                actionLabel = "Отменить",
-                duration = SnackbarDuration.Short
-            )
-            if (result == SnackbarResult.ActionPerformed) viewModel.undoDelete()
-        }
-    }
-
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -146,7 +130,7 @@ fun SearchScreen(
                             onToggle = { viewModel.toggleTaskGlobal(item.task.id) },
                             onToggleSubtask = { subId -> viewModel.toggleSubtaskGlobal(item.task.id, subId) },
                             onEdit = { editingTaskWithCategory = item },
-                            onDelete = { deleteWithUndo(item.task.id) }
+                            onDelete = { viewModel.deleteTaskGlobal(item.task.id) }
                         )
                     }
                 }
