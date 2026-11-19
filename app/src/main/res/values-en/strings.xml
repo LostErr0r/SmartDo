@@ -36,6 +36,14 @@
     <string name="theme_light_sub">Always light</string>
     <string name="theme_dark">Dark</string>
     <string name="theme_dark_sub">Always dark</string>
+    <string name="theme_section_mode">Appearance</string>
+    <string name="theme_section_icon">App icon</string>
+    <string name="theme_icon_hint">The home screen icon will update in a few seconds</string>
+    <string name="app_icon_cyber">Notebook</string>
+    <string name="app_icon_layers">Layers</string>
+    <string name="app_icon_pen">Pen</string>
+    <string name="app_icon_circuit">Circuit</string>
+    <string name="app_icon_book">Book</string>
 
     <!-- Data transfer -->
     <string name="data_title">Data transfer</string>

@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartDo — Выбор новой иконки (Концепты v2.0)</title>
+  <style>
+    :root {
+      --bg: #0b0d13;
+      --card-bg: rgba(255, 255, 255, 0.04);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --text: #f3f4f6;
+      --text-dim: #9ca3af;
+      --accent: #3b82f6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(circle at 50% 0%, #1a1f2e 0%, #0b0d13 70%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 40px 20px 80px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 14px;
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: #60a5fa;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      letter-spacing: 0.5px;
+    }
+
+    h1 {
+      font-size: 38px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p.subtitle {
+      font-size: 17px;
+      color: var(--text-dim);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    /* Сетка вариантов */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 28px;
+      margin-bottom: 60px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 28px;
+      padding: 30px;
+      backdrop-filter: blur(20px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+    }
+
+    .card-tag {
+      position: absolute;
+      top: 18px;
+      right: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-dim);
+    }
+
+    .icon-stage {
+      width: 170px;
+      height: 170px;
+      margin: 20px 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* Маска иконки */
+    .icon-wrapper {
+      width: 150px;
+      height: 150px;
+      border-radius: 36px;
+      box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.12);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .card:hover .icon-wrapper {
+      transform: scale(1.05);
+      box-shadow: 0 24px 48px -10px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.25);
+    }
+
+    /* Иконки в трёх формах лаунчеров */
+    .shapes-preview {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 20px;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 8px 14px;
+      border-radius: 999px;
+    }
+
+    .shapes-preview span {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-weight: 500;
+    }
+
+    .shape-mini {
+      width: 26px;
+      height: 26px;
+      overflow: hidden;
+      display: inline-flex;
+    }
+    .shape-mini.circle { border-radius: 50%; }
+    .shape-mini.squircle { border-radius: 7px; }
+    .shape-mini svg { width: 100%; height: 100%; }
+
+    .card-title {
+      font-size: 21px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .card-desc {
+      font-size: 14px;
+      color: var(--text-dim);
+      text-align: center;
+      line-height: 1.5;
+      margin-bottom: 22px;
+      flex-grow: 1;
+    }
+
+    .color-palette {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+
+    .palette-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .select-btn {
+      width: 100%;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .select-btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    /* Мобильный экран предпросмотра */
+    .mockup-section {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--card-border);
+      border-radius: 36px;
+      padding: 48px 30px;
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    .mockup-title {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .mockup-sub {
+      color: var(--text-dim);
+      margin-bottom: 36px;
+      font-size: 15px;
+    }
+
+    .dock-grid {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+
+    .dock-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .dock-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    .dock-label {
+      font-size: 12px;
+      color: #e5e7eb;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="badge">SMARTDO DESIGN LAB</div>
+      <h1>Концепты новой иконки v2.0</h1>
+      <p class="subtitle">Выберите один из 5 вариантов ниже — напишите номер, и я сразу заменю иконку в приложении!</p>
+    </header>
+
+    <div class="grid">
+
+      <!-- ================= 1. CUPERTINO PURE ================= -->
+      <div class="card">
+        <span class="card-tag">Вариант 1</span>
+
+        <div class="icon-stage">
+          <div class="icon-wrapper">
+            <svg id="svg-opt-1" viewBox="0 0 108 108" width="150" height="150" style="border-radius: 36px;">
+              <defs>
+                <linearGradient id="bg-cup" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#0A84FF" />
+                  <stop offset="100%" stop-color="#0055D4" />
+                </linearGradient>
+                <radialGradient id="cup-glow" cx="50%" cy="40%" r="55%">
+                  <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.25" />
+                  <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+                </radialGradient>
+                <filter id="cup-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#002b66" flood-opacity="0.4" />
+                </filter>
+              </defs>
+              <!-- Фон -->
+              <rect width="108" height="108" fill="url(#bg-cup)" />
+              <rect width="108" height="108" fill="url(#cup-glow)" />
+
+              <!-- Тонкий внешний круг с отсечкой -->
+              <circle cx="54" cy="54" r="30" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-opacity="0.35" stroke-dasharray="140 10" />
+
+              <!-- Акцентная парящая галочка -->
+              <path d="M37 54 L49 66 L72 41" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" filter="url(#cup-shadow)" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="shapes-preview">
+          <span>В лаунчерах:</span>
+          <div class="shape-mini circle">
+            <svg viewBox="0 0 108 108"><use href="#svg-opt-1"/></svg>
+          </div>
+          <div class="shape-mini squircle">
+            <svg viewBox="0 0 108 108"><use href="#svg-opt-1"/></svg>
+          </div>
+        </div>
+
+        <div class="color-palette">
+          <div class="palette-dot" style="background: #0A84FF;"></div>
+          <div class="palette-dot" style="background: #0055D4;"></div>
+          <div class="palette-dot" style="background: #FFFFFF;"></div>
+        </div>
+
+        <h3 class="card-title">1. Cupertino Pure</h3>
+        <p class="card-desc">В стиле Things 3 и Apple Reminders. Сапфирово-лазурный градиент, ультрачистая белая галочка в изящном круге. Максимум чистоты и свежести.</p>
+
+        <button class="select-btn" onclick="alert('Выбран Вариант 1! Напишите мне в чат: Выбираю вариант 1')">Выбрать этот вариант</button>
+      </div>
+
+      <!-- ================= 2. OBSIDIAN & NEON ================= -->
+      <div class="card">
+        <span class="card-tag">Вариант 2</span>
+
+        <div class="icon-stage">
+          <div class="icon-wrapper">
+            <svg id="svg-opt-2" viewBox="0 0 108 108" width="150" height="150" style="border-radius: 36px;">
+              <defs>
+                <linearGradient id="bg-obsidian" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#181B24" />
+                  <stop offset="50%" stop-color="#0E1017" />
+                  <stop offset="100%" stop-color="#07080B" />
+                </linearGradient>
+                <linearGradient id="neon-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#00F5FF" />
+                  <stop offset="50%" stop-color="#4D88FF" />
+                  <stop offset="100%" stop-color="#9E00FF" />
+                </linearGradient>
+                <radialGradient id="neon-glow" cx="50%" cy="54%" r="45%">
+                  <stop offset="0%" stop-color="#00F5FF" stop-opacity="0.3" />
+                  <stop offset="60%" stop-color="#7C4DFF" stop-opacity="0.15" />
+                  <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+                </radialGradient>
+              </defs>
+              <!-- Фон -->
+              <rect width="108" height="108" fill="url(#bg-obsidian)" />
+              <circle cx="54" cy="54" r="34" fill="url(#neon-glow)" />
+
+              <!-- Минималистичные строки списка задач -->
+              <line x1="33" y1="38" x2="55" y2="38" stroke="#3A3F50" stroke-width="3" stroke-linecap="round" />
+              <line x1="33" y1="46" x2="68" y2="46" stroke="#3A3F50" stroke-width="3" stroke-linecap="round" />
+
+              <!-- Яркая неоновая галочка -->
+              <path d="M33 63 L47 75 L76 46" fill="none" stroke="url(#neon-grad)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="shapes-preview">
+          <span>В лаунчерах:</span>
+          <div class="shape-mini circle">
+            <svg viewBox="0 0 108 108"><use href="#svg-opt-2"/></svg>
+          </div>
+          <div class="shape-mini squircle">
+            <svg viewBox="0 0 108 108"><use href="#svg-opt-2"/></svg>
+          </div>
+        </div>
+
+        <div class="color-palette">
+          <div class="palette-dot" style="background: #181B24;"></div>
+          <div class="palette-dot" style="background: #00F5FF;"></div>
+          <div class="palette-dot" style="background: #9E00FF;"></div>
+        </div>
+
+        <h3 class="card-title">2. Obsidian & Neon</h3>
+        <p class="card-desc">В стиле Linear & Cyber Dark. Глубокий бархатный ониксовый фон, неоновое свечение и яркая бирюзово-фиолетовая галочка. Идеально под тёмную тему.</p>
+
+        <button class="select-btn" onclick="alert('Выбран Вариант 2! Напишите мне в чат: Выбираю вариант 2')">Выбрать этот вариант</button>
+      </div>
+
+      <!-- ================= 3. SUNSET AURA ================= -->
+      <div class="card">
+        <span class="card-tag">Вариант 3</span>
+
+        <div class="icon-stage">
+          <div class="icon-wrapper">
+            <svg id="svg-opt-3" viewBox="0 0 108 108" width="150" height="150" style="border-radius: 36px;">
+              <defs>
+                <linearGradient id="bg-sunset" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#FF2D55" />
+                  <stop offset="45%" stop-color="#784BA0" />
+                  <stop offset="100%" stop-color="#2B86C5" />
+                </linearGradient>
+                <filter id="glass-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#000000" flood-opacity="0.3" />
+                </filter>
+              </defs>
+              <!-- Фон -->
+              <rect width="108" height="108" fill="url(#bg-sunset)" />
+
+              <!-- Frosted Glass бейдж -->
+              <rect x="25" y="25" width="58" height="58" rx="18" fill="#FFFFFF" fill-opacity="0.18" stroke="#FFFFFF" stroke-opacity="0.4" stroke-width="1.5" filter="url(#glass-shadow)" />
+
+              <!-- Галочка завершения -->
+              <path d="M37 54 L49 65 L71 42" fill="none" stroke="#FFFFFF" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" />
+
+              <!-- Звездочка магии -->
+              <circle cx="72" cy="33" r="2.5" fill="#FFFFFF" fill-opacity="0.9" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="shapes-preview">
+          <span>В лаунчерах:</span>
+          <div class="shape-mini circle">
+            <svg viewBox="0 0 108 108"><use href="#svg-opt-3"/></svg>
+          </div>
+          <div class="shape-mini squircle">
+            <svg viewBox="0 0 108 108"><use href="#svg-opt-3"/></svg>
+          </div>
+        </div>
+
+        <div class="color-palette">
+          <div class="palette-dot" style="background: #FF2D55;"></div>
+          <div class="palette-dot" style="background: #784BA0;"></div>
+          <div class="palette-dot" style="background: #2B86C5;"></div>
+        </div>
+
+        <h3 class="card-title">3. Sunset Aura</h3>
+        <p class="card-desc">В стиле Arc Browser, Craft & Instagram. Живой, эмоциональный градиент «Закат» с матовым полупрозрачным стеклянным бейджем. Сразу выделяется на экране.</p>
+
+        <button class="select-btn" onclick="alert('Выбран Вариант 3! Напишите мне в чат: Выбираю вариант 3')">Выбрать этот вариант</button>
+      </div>
+
+      <!-- ================= 4. SWISS MINIMAL ================= -->
+      <div class="card">
+        <span class="card-tag">Вариант 4</span>
+
+        <div class="icon-stage">
+          <div class="icon-wrapper">
+            <svg id="svg-opt-4" viewBox="0 0 108 108" width="150" height="150" style="border-radius: 36px;">
+              <defs>
+                <linearGradient id="bg-swiss" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#141519" />
+                  <stop offset="100%" stop-color="#0A0B0D" />
+                </linearGradient>
+              </defs>
+              <!-- Фон -->
+              <rect width="108" height="108" fill="url(#bg-swiss)" />
+              <rect x="18" y="18" width="72" height="72" rx="20" fill="none" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="1.2" />
+
+              <!-- Буква D (SmartDo) + Чеклист -->
+              <!-- Верхняя горизонтальная полоса -->
+              <line x1="34" y1="38" x2="64" y2="38" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" />
+              <!-- Средняя полоса -->
+              <line x1="34" y1="50" x2="52" y2="50" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" stroke-opacity="0.6" />
+              <!-- Нижняя галочка акцентная (Красный коралл или Белый) -->
+              <path d="M34 68 L44 76 L74 46" fill="none" stroke="#FF453A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="shapes-preview">
+          <span>В лаунчерах:</span>
+          <div class="shape-mini circle">
+            <svg viewBox="0 0 108 108"><use href="#svg-opt-4"/></svg>
+          </div>
+          <div class="shape-mini squircle">
+            <svg viewBox="0 0 108 108"><use href="#svg-opt-4"/></svg>
+          </div>
+        </div>
+
+        <div class="color-palette">
+          <div class="palette-dot" style="background: #141519;"></div>
+          <div class="palette-dot" style="background: #FFFFFF;"></div>
+          <div class="palette-dot" style="background: #FF453A;"></div>
+        </div>
+
+        <h3 class="card-title">4. Swiss Minimal</h3>
+        <p class="card-desc">В стиле Notion, Nothing OS & Bauhaus. Чёрный матовый монохром, швейцарская геометрия задач и фирменная алая галочка. Строго, технологично, со вкусом.</p>
+
+        <button class="select-btn" onclick="alert('Выбран Вариант 4! Напишите мне в чат: Выбираю вариант 4')">Выбрать этот вариант</button>
+      </div>
+
+      <!-- ================= 5. EMERALD FOCUS ================= -->
+      <div class="card">
+        <span class="card-tag">Вариант 5</span>
+
+        <div class="icon-stage">
+          <div class="icon-wrapper">
+            <svg id="svg-opt-5" viewBox="0 0 108 108" width="150" height="150" style="border-radius: 36px;">
+              <defs>
+                <linearGradient id="bg-emerald" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#10B981" />
+                  <stop offset="60%" stop-color="#059669" />
+                  <stop offset="100%" stop-color="#064E3B" />
+                </linearGradient>
+                <filter id="em-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#022c22" flood-opacity="0.5" />
+                </filter>
+              </defs>
+              <!-- Фон -->
+              <rect width="108" height="108" fill="url(#bg-emerald)" />
+
+              <!-- Кольцо прогресса -->
+              <circle cx="54" cy="54" r="28" fill="none" stroke="#FFFFFF" stroke-opacity="0.3" stroke-width="3" stroke-linecap="round" stroke-dasharray="130 30" />
+
+              <!-- Галочка -->
+              <path d="M38 54 L49 65 L71 43" fill="none" stroke="#FFFFFF" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#em-shadow)" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="shapes-preview">
+          <span>В лаунчерах:</span>
+          <div class="shape-mini circle">
+            <svg viewBox="0 0 108 108"><use href="#svg-opt-5"/></svg>
+          </div>
+          <div class="shape-mini squircle">
+            <svg viewBox="0 0 108 108"><use href="#svg-opt-5"/></svg>
+          </div>
+        </div>
+
+        <div class="color-palette">
+          <div class="palette-dot" style="background: #10B981;"></div>
+          <div class="palette-dot" style="background: #059669;"></div>
+          <div class="palette-dot" style="background: #064E3B;"></div>
+        </div>
+
+        <h3 class="card-title">5. Emerald Focus</h3>
+        <p class="card-desc">В стиле Headspace и Calm. Свежий благородный хвойно-изумрудный градиент, спокойствие, порядок и продуктивность без спешки.</p>
+
+        <button class="select-btn" onclick="alert('Выбран Вариант 5! Напишите мне в чат: Выбираю вариант 5')">Выбрать этот вариант</button>
+      </div>
+
+    </div>
+
+    <!-- Предпросмотр на рабочем столе смартфона -->
+    <div class="mockup-section">
+      <div class="mockup-title">Как это смотрится в доке на смартфоне:</div>
+      <div class="mockup-sub">Сравните варианты в реальном масштабе мобильного экрана</div>
+
+      <div class="dock-grid">
+        <div class="dock-item">
+          <div class="dock-icon">
+            <svg viewBox="0 0 108 108" width="72" height="72" style="border-radius: 18px;"><use href="#svg-opt-1"/></svg>
+          </div>
+          <span class="dock-label">№1 Cupertino</span>
+        </div>
+
+        <div class="dock-item">
+          <div class="dock-icon">
+            <svg viewBox="0 0 108 108" width="72" height="72" style="border-radius: 18px;"><use href="#svg-opt-2"/></svg>
+          </div>
+          <span class="dock-label">№2 Obsidian</span>
+        </div>
+
+        <div class="dock-item">
+          <div class="dock-icon">
+            <svg viewBox="0 0 108 108" width="72" height="72" style="border-radius: 18px;"><use href="#svg-opt-3"/></svg>
+          </div>
+          <span class="dock-label">№3 Sunset</span>
+        </div>
+
+        <div class="dock-item">
+          <div class="dock-icon">
+            <svg viewBox="0 0 108 108" width="72" height="72" style="border-radius: 18px;"><use href="#svg-opt-4"/></svg>
+          </div>
+          <span class="dock-label">№4 Swiss</span>
+        </div>
+
+        <div class="dock-item">
+          <div class="dock-icon">
+            <svg viewBox="0 0 108 108" width="72" height="72" style="border-radius: 18px;"><use href="#svg-opt-5"/></svg>
+          </div>
+          <span class="dock-label">№5 Emerald</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- ФОН: Абсолютно матовый графитово-черный -->
+    <path android:pathData="M0,0h108v108h-108z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="54"
+                android:startY="0"
+                android:endX="54"
+                android:endY="108"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FF141519" />
+                <item android:offset="1.0" android:color="#FF0A0B0D" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Тонкая архитектурная внутренняя рамка -->
+    <path
+        android:pathData="M38,20 H70 A18,18 0 0 1 88,38 V70 A18,18 0 0 1 70,88 H38 A18,18 0 0 1 20,70 V38 A18,18 0 0 1 38,20 Z"
+        android:strokeWidth="1.2"
+        android:strokeColor="#18FFFFFF" />
+
+    <!-- Верхняя линия задачи -->
+    <path
+        android:pathData="M34,38 L64,38"
+        android:strokeWidth="4.8"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round" />
+
+    <!-- Средняя линия задачи (приглушенная) -->
+    <path
+        android:pathData="M34,50 L52,50"
+        android:strokeWidth="4.8"
+        android:strokeColor="#99FFFFFF"
+        android:strokeLineCap="round" />
+
+    <!-- Фирменная красная акцентная галочка (Swiss Red) -->
+    <path
+        android:pathData="M34,68 L44,76 L74,46"
+        android:strokeWidth="5.4"
+        android:strokeColor="#FFFF453A"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

@@ -45,6 +45,14 @@
     <string name="theme_light_sub">Всегда светлое оформление</string>
     <string name="theme_dark">Тёмная</string>
     <string name="theme_dark_sub">Всегда тёмное оформление</string>
+    <string name="theme_section_mode">Оформление</string>
+    <string name="theme_section_icon">Иконка приложения</string>
+    <string name="theme_icon_hint">Иконка на рабочем столе обновится через несколько секунд</string>
+    <string name="app_icon_cyber">Блокнот</string>
+    <string name="app_icon_layers">Слои</string>
+    <string name="app_icon_pen">Перо</string>
+    <string name="app_icon_circuit">Схема</string>
+    <string name="app_icon_book">Книга</string>
 
     <!-- Перенос данных -->
     <string name="data_title">Перенос данных</string>

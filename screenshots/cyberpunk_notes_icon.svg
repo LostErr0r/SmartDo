@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-label="Neon cyberpunk spiral notes app icon">
+<defs>
+  <radialGradient id="bg"><stop stop-color="#111735"/><stop offset=".72" stop-color="#09091e"/><stop offset="1" stop-color="#03030d"/></radialGradient>
+  <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ef48fa"/><stop offset=".3" stop-color="#9945ff"/><stop offset=".67" stop-color="#19e9fd"/><stop offset="1" stop-color="#e932e9"/></linearGradient>
+  <linearGradient id="surface" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#60247f"/><stop offset=".25" stop-color="#24274c"/><stop offset=".68" stop-color="#101d3e"/><stop offset="1" stop-color="#6521a3"/></linearGradient>
+  <linearGradient id="edge" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff68ff"/><stop offset=".44" stop-color="#b051ff"/><stop offset=".73" stop-color="#29edff"/><stop offset="1" stop-color="#08deff"/></linearGradient>
+  <linearGradient id="metal" x1="0" x2="1" y1="0" y2=".25"><stop stop-color="#300c61"/><stop offset=".2" stop-color="#e98aff"/><stop offset=".39" stop-color="#421b86"/><stop offset=".67" stop-color="#04bde9"/><stop offset=".84" stop-color="#182552"/><stop offset="1" stop-color="#f6a7ff"/></linearGradient>
+  <linearGradient id="line" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#99f4ff"/><stop offset=".55" stop-color="#73d9ff"/><stop offset="1" stop-color="#f19bff"/></linearGradient>
+  <linearGradient id="fold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e75bff"/><stop offset=".48" stop-color="#8c2abe"/><stop offset="1" stop-color="#171e47"/></linearGradient>
+  <filter id="glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="9"/></filter>
+  <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="20"/></filter>
+  <filter id="small" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="3"/></filter>
+  <clipPath id="circle"><circle cx="512" cy="512" r="482"/></clipPath>
+</defs>
+<g clip-path="url(#circle)"><rect width="1024" height="1024" fill="url(#bg)"/>
+<ellipse cx="519" cy="820" rx="275" ry="30" fill="#9122ec" opacity=".24" filter="url(#soft)"/>
+<ellipse cx="545" cy="816" rx="180" ry="17" fill="#09ddfa" opacity=".3" filter="url(#soft)"/>
+</g>
+<circle cx="512" cy="512" r="465" fill="none" stroke="url(#rim)" stroke-width="18" opacity=".65" filter="url(#glow)"/>
+<circle cx="512" cy="512" r="465" fill="none" stroke="url(#rim)" stroke-width="11"/>
+<!-- notebook drop shadow / luminous frame -->
+<rect x="286" y="225" width="482" height="581" rx="47" fill="#030a22" opacity=".7"/>
+<rect x="286" y="225" width="482" height="581" rx="47" fill="none" stroke="url(#edge)" stroke-width="15" opacity=".7" filter="url(#glow)"/>
+<rect x="286" y="225" width="482" height="581" rx="47" fill="url(#surface)" stroke="url(#edge)" stroke-width="7"/>
+<path d="M321 231 H686 L744 284 V710 Q744 772 687 781 H331 Q301 781 301 748 V276 Q301 240 321 231" fill="none" stroke="#ffd0ff" opacity=".55" stroke-width="2"/>
+<!-- corner geometric circuitry -->
+<path d="M586 228 L658 302 H759 M604 228 L676 285 H764" fill="none" stroke="#20ddfc" opacity=".7" stroke-width="2"/>
+<path d="M319 757 H433 L463 796 M324 770 H421 L448 800" fill="none" stroke="#ee65ff" opacity=".65" stroke-width="2"/>
+<!-- spiral holes & rings -->
+<g>
+  <g fill="#080b23" stroke="#ac66ed" stroke-width="4"><circle cx="350" cy="320" r="22"/><circle cx="350" cy="411" r="22"/><circle cx="350" cy="502" r="22"/><circle cx="350" cy="593" r="22"/><circle cx="350" cy="684" r="22"/></g>
+  <g fill="none" stroke="#bb62fc" stroke-width="26" stroke-linecap="round" opacity=".45" filter="url(#small)"><path d="M350 320 C286 308 249 330 253 357 C256 380 304 376 352 355"/><path d="M350 411 C286 399 249 421 253 448 C256 471 304 467 352 446"/><path d="M350 502 C286 490 249 512 253 539 C256 562 304 558 352 537"/><path d="M350 593 C286 581 249 603 253 630 C256 653 304 649 352 628"/><path d="M350 684 C286 672 249 694 253 721 C256 744 304 740 352 719"/></g>
+  <g fill="none" stroke="url(#metal)" stroke-width="19" stroke-linecap="round"><path d="M350 320 C286 308 249 330 253 357 C256 380 304 376 352 355"/><path d="M350 411 C286 399 249 421 253 448 C256 471 304 467 352 446"/><path d="M350 502 C286 490 249 512 253 539 C256 562 304 558 352 537"/><path d="M350 593 C286 581 249 603 253 630 C256 653 304 649 352 628"/><path d="M350 684 C286 672 249 694 253 721 C256 744 304 740 352 719"/></g>
+</g>
+<!-- visible note lines -->
+<g stroke="url(#line)" stroke-width="12" stroke-linecap="round"><path d="M445 413 H680"/><path d="M445 482 H680"/><path d="M445 551 H680"/></g>
+<g stroke="#59e4ff" stroke-width="19" opacity=".34" filter="url(#small)" stroke-linecap="round"><path d="M445 413 H680"/><path d="M445 482 H680"/><path d="M445 551 H680"/></g>
+<!-- folded corner -->
+<path d="M617 797 Q652 769 660 724 Q671 669 725 651 Q754 643 768 614 V748 Q766 798 710 804 Z" fill="#08152b" stroke="#15dfff" stroke-width="5"/>
+<path d="M624 789 Q654 755 663 716 Q672 673 708 661 Q734 654 754 635 Q738 716 694 759 Q671 781 624 789 Z" fill="url(#fold)" stroke="#f76cff" stroke-width="4"/>
+<path d="M637 786 Q691 761 730 688" fill="none" stroke="#ff97ff" stroke-width="3" opacity=".8"/>
+</svg>

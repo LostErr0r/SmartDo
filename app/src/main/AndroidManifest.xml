@@ -24,12 +24,78 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.MyApplication">
+            android:theme="@style/Theme.MyApplication" />
+
+        <!-- Сменные иконки приложения: включён ровно один alias (см. AppIconManager) -->
+        <activity-alias
+            android:name=".IconAlias_cyber"
+            android:enabled="true"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_cyber"
+            android:roundIcon="@mipmap/ic_launcher_cyber"
+            android:label="@string/app_name"
+            android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".IconAlias_layers"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_layers"
+            android:roundIcon="@mipmap/ic_launcher_layers"
+            android:label="@string/app_name"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".IconAlias_pen"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_pen"
+            android:roundIcon="@mipmap/ic_launcher_pen"
+            android:label="@string/app_name"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".IconAlias_circuit"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_circuit"
+            android:roundIcon="@mipmap/ic_launcher_circuit"
+            android:label="@string/app_name"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".IconAlias_book"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_book"
+            android:roundIcon="@mipmap/ic_launcher_book"
+            android:label="@string/app_name"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
 
         <!-- BroadcastReceiver для показа уведомлений по AlarmManager -->
         <receiver

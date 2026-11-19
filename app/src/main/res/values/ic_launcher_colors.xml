@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_cyber_bg">#070719</color>
+    <color name="ic_launcher_layers_bg">#14152B</color>
+    <color name="ic_launcher_pen_bg">#141622</color>
+    <color name="ic_launcher_circuit_bg">#0B1624</color>
+    <color name="ic_launcher_book_bg">#0D161F</color>
+</resources>

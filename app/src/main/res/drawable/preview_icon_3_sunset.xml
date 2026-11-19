@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- ФОН: Градиент Sunset Aura -->
+    <path android:pathData="M0,0h108v108h-108z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="0"
+                android:startY="0"
+                android:endX="108"
+                android:endY="108"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FFFF2D55" />
+                <item android:offset="0.45" android:color="#FF784BA0" />
+                <item android:offset="1.0" android:color="#FF2B86C5" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Тень матового бейджа -->
+    <path
+        android:pathData="M42,28 H66 A18,18 0 0 1 84,46 V70 A18,18 0 0 1 66,88 H42 A18,18 0 0 1 24,70 V46 A18,18 0 0 1 42,28 Z"
+        android:fillColor="#22000000" />
+
+    <!-- Полупрозрачный матовый стеклянный бейдж (Frosted Glass) -->
+    <path
+        android:pathData="M42,25 H66 A18,18 0 0 1 84,43 V67 A18,18 0 0 1 66,85 H42 A18,18 0 0 1 24,67 V43 A18,18 0 0 1 42,25 Z"
+        android:fillColor="#30FFFFFF"
+        android:strokeWidth="1.6"
+        android:strokeColor="#70FFFFFF" />
+
+    <!-- Галочка завершения -->
+    <path
+        android:pathData="M37,54 L49,65 L71,42"
+        android:strokeWidth="5.8"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+
+    <!-- Декоративная звездочка/искра в углу -->
+    <path
+        android:pathData="M73,34m-2.5,0a2.5,2.5 0 1,1 5,0a2.5,2.5 0 1,1 -5,0"
+        android:fillColor="#EEFFFFFF" />
+</vector>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- ФОН: Глубокий оникс/титан Linear -->
+    <path android:pathData="M0,0h108v108h-108z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="0"
+                android:startY="0"
+                android:endX="108"
+                android:endY="108"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FF181B24" />
+                <item android:offset="0.5" android:color="#FF0E1017" />
+                <item android:offset="1.0" android:color="#FF07080B" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Неоновое рассеянное свечение -->
+    <path
+        android:pathData="M54,54m-32,0a32,32 0 1,1 64,0a32,32 0 1,1 -64,0"
+        android:fillColor="#2200F5FF" />
+
+    <!-- Минималистичные строки списка задач -->
+    <path
+        android:pathData="M33,38 L55,38"
+        android:strokeWidth="3.2"
+        android:strokeColor="#FF3A3F50"
+        android:strokeLineCap="round" />
+
+    <path
+        android:pathData="M33,46 L68,46"
+        android:strokeWidth="3.2"
+        android:strokeColor="#FF3A3F50"
+        android:strokeLineCap="round" />
+
+    <!-- Неоновая градиентная галочка (Cyan -> Blue -> Violet) -->
+    <path
+        android:pathData="M33,63 L47,75 L76,46"
+        android:strokeWidth="6.2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:startX="33"
+                android:startY="75"
+                android:endX="76"
+                android:endY="46"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FF00F5FF" />
+                <item android:offset="0.5" android:color="#FF4D88FF" />
+                <item android:offset="1.0" android:color="#FF9E00FF" />
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>
