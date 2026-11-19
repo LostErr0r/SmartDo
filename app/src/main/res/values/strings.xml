@@ -205,4 +205,102 @@
         <item>Сб</item>
         <item>Вс</item>
     </string-array>
+
+    <!-- Общие пункты меню -->
+    <string name="nav_lists">Списки</string>
+
+    <!-- Архив -->
+    <string name="archive_clear_all">Очистить весь архив</string>
+    <string name="archive_empty_title">Архив пуст</string>
+    <string name="archive_empty_sub">Когда вы выполните или удалите задачи,\nони сохранятся здесь для истории или быстрого восстановления.</string>
+    <string name="archive_clear_q">Очистить архив?</string>
+    <string name="archive_clear_msg">Все задачи из архива будут удалены навсегда.</string>
+    <string name="badge_done">Выполнено</string>
+    <string name="badge_deleted">Удалено</string>
+    <string name="restore">Восстановить</string>
+    <string name="delete_forever">Удалить навсегда</string>
+
+    <!-- Уведомления -->
+    <string name="notif_clear_history">Очистить историю</string>
+    <string name="notif_empty_title">Нет уведомлений</string>
+    <string name="notif_empty_sub">Здесь будут отображаться напоминания по времени</string>
+
+    <!-- Статистика -->
+    <string name="stats_productivity">ПРОДУКТИВНОСТЬ</string>
+    <string name="stats_closed">Закрыто</string>
+    <string name="stats_msg_empty">Добавьте задачи, чтобы начать отслеживать прогресс</string>
+    <string name="stats_msg_all">🎉 Потрясающе! Все активные дела завершены!</string>
+    <string name="stats_msg_half">🔥 Отличный темп, больше половины сделано!</string>
+    <string name="stats_msg_start">💪 Начало положено, продолжайте закрывать дела!</string>
+    <string name="stats_in_progress">В работе</string>
+    <string name="stats_completed">Выполнено</string>
+    <string name="stats_memorable_dates">Памятных дат</string>
+    <string name="stats_checklists">Чек-листы</string>
+    <string name="stats_by_category">ПО КАТЕГОРИЯМ</string>
+
+    <!-- Напоминания (памятные даты) -->
+    <string name="reminder_add_date">Добавить дату</string>
+    <string name="reminders_search_hint">Поиск дней рождения и дат…</string>
+    <string name="filter_all">Все</string>
+    <string name="filter_upcoming">Ближайшие (30 дн.)</string>
+    <string name="filter_birthday">Дни рождения</string>
+    <string name="filter_anniversary">Годовщины</string>
+    <string name="filter_celebration">Праздники</string>
+    <string name="reminders_empty_title">Нет напоминаний</string>
+    <string name="reminders_empty_filter_sub">Попробуйте изменить поисковый запрос или фильтр</string>
+    <string name="reminders_empty_sub">Запишите дни рождения близких и важные события — приложение заранее напомнит о них!</string>
+    <string name="reminders_add_btn">Добавить напоминание</string>
+    <string name="reminders_found">НАЙДЕНО СОБЫТИЙ: %d</string>
+    <string name="reminder_new">Новое напоминание</string>
+    <string name="reminder_edit">Изменить напоминание</string>
+    <string name="reminder_delete_q">Удалить напоминание?</string>
+    <string name="reminder_delete_msg">Напоминание для «%s» будет удалено.</string>
+    <string name="advance_same_day">В день события</string>
+    <string name="advance_chip_same_day">В тот же день</string>
+    <string name="advance_1d">За 1 день</string>
+    <string name="advance_3d">За 3 дня</string>
+    <string name="advance_week">За неделю</string>
+    <string name="advance_days_fmt">За %d дн.</string>
+    <string name="advance_in">%1$s в %2$s</string>
+    <string name="badge_today">Сегодня! 🎉</string>
+    <string name="badge_tomorrow">Завтра</string>
+    <string name="badge_in_days">через %d дн.</string>
+    <string name="badge_in_months">через %d мес.</string>
+    <string name="reminder_name_label">Имя или событие</string>
+    <string name="reminder_name_hint">Например: День рождения мамы</string>
+    <string name="reminder_icon_label">Значок события:</string>
+    <string name="year_label">Год (опц.)</string>
+    <string name="advance_label">За сколько напомнить:</string>
+    <string name="notify_time_label">Время напоминания:</string>
+    <string name="reminder_time_title">Время напоминания</string>
+    <string name="reminder_notes_label">Заметки (идеи подарка, поздравление)</string>
+    <string name="reminder_notes_hint">Подарить книгу, заказать торт…</string>
+    <string-array name="month_names_genitive">
+        <item>января</item>
+        <item>февраля</item>
+        <item>марта</item>
+        <item>апреля</item>
+        <item>мая</item>
+        <item>июня</item>
+        <item>июля</item>
+        <item>августа</item>
+        <item>сентября</item>
+        <item>октября</item>
+        <item>ноября</item>
+        <item>декабря</item>
+    </string-array>
+    <string-array name="zodiac_signs">
+        <item>Овен</item>
+        <item>Телец</item>
+        <item>Близнецы</item>
+        <item>Рак</item>
+        <item>Лев</item>
+        <item>Дева</item>
+        <item>Весы</item>
+        <item>Скорпион</item>
+        <item>Стрелец</item>
+        <item>Козерог</item>
+        <item>Водолей</item>
+        <item>Рыбы</item>
+    </string-array>
 </resources>

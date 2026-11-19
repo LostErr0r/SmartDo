@@ -33,6 +33,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
@@ -40,44 +42,51 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.R
 import com.example.myapplication.TaskViewModel
 import com.example.myapplication.data.SpecialReminder
 import java.util.Calendar
 import java.util.TimeZone
 
-val MONTH_NAMES = listOf(
-    "января", "февраля", "марта", "апреля", "мая", "июня",
-    "июля", "августа", "сентября", "октября", "ноября", "декабря"
-)
-
 val REMINDER_EMOJIS = listOf("🎂", "🎁", "🎉", "💍", "🎈", "🌟", "❤️", "📅", "🌸", "🍰")
 
-data class ZodiacSign(val name: String, val symbol: String)
+/** Знак зодиака: индекс в массиве zodiac_signs (Овен=0 … Рыбы=11) и символ. */
+data class ZodiacSign(val index: Int, val symbol: String)
 
 fun getZodiacSign(day: Int, month: Int): ZodiacSign {
     return when (month) {
-        1 -> if (day < 20) ZodiacSign("Козерог", "♑") else ZodiacSign("Водолей", "♒")
-        2 -> if (day < 19) ZodiacSign("Водолей", "♒") else ZodiacSign("Рыбы", "♓")
-        3 -> if (day < 21) ZodiacSign("Рыбы", "♓") else ZodiacSign("Овен", "♈")
-        4 -> if (day < 20) ZodiacSign("Овен", "♈") else ZodiacSign("Телец", "♉")
-        5 -> if (day < 21) ZodiacSign("Телец", "♉") else ZodiacSign("Близнецы", "♊")
-        6 -> if (day < 21) ZodiacSign("Близнецы", "♊") else ZodiacSign("Рак", "♋")
-        7 -> if (day < 23) ZodiacSign("Рак", "♋") else ZodiacSign("Лев", "♌")
-        8 -> if (day < 23) ZodiacSign("Лев", "♌") else ZodiacSign("Дева", "♍")
-        9 -> if (day < 23) ZodiacSign("Дева", "♍") else ZodiacSign("Весы", "♎")
-        10 -> if (day < 23) ZodiacSign("Весы", "♎") else ZodiacSign("Скорпион", "♏")
-        11 -> if (day < 22) ZodiacSign("Скорпион", "♏") else ZodiacSign("Стрелец", "♐")
-        12 -> if (day < 22) ZodiacSign("Стрелец", "♐") else ZodiacSign("Козерог", "♑")
-        else -> ZodiacSign("Овен", "♈")
+        1 -> if (day < 20) ZodiacSign(9, "♑") else ZodiacSign(10, "♒")
+        2 -> if (day < 19) ZodiacSign(10, "♒") else ZodiacSign(11, "♓")
+        3 -> if (day < 21) ZodiacSign(11, "♓") else ZodiacSign(0, "♈")
+        4 -> if (day < 20) ZodiacSign(0, "♈") else ZodiacSign(1, "♉")
+        5 -> if (day < 21) ZodiacSign(1, "♉") else ZodiacSign(2, "♊")
+        6 -> if (day < 21) ZodiacSign(2, "♊") else ZodiacSign(3, "♋")
+        7 -> if (day < 23) ZodiacSign(3, "♋") else ZodiacSign(4, "♌")
+        8 -> if (day < 23) ZodiacSign(4, "♌") else ZodiacSign(5, "♍")
+        9 -> if (day < 23) ZodiacSign(5, "♍") else ZodiacSign(6, "♎")
+        10 -> if (day < 23) ZodiacSign(6, "♎") else ZodiacSign(7, "♏")
+        11 -> if (day < 22) ZodiacSign(7, "♏") else ZodiacSign(8, "♐")
+        12 -> if (day < 22) ZodiacSign(8, "♐") else ZodiacSign(9, "♑")
+        else -> ZodiacSign(0, "♈")
     }
 }
 
-enum class ReminderFilter(val label: String, val emoji: String) {
-    ALL("Все", "✨"),
-    UPCOMING("Ближайшие (30 дн.)", "⭐"),
-    BIRTHDAY("Дни рождения", "🎂"),
-    ANNIVERSARY("Годовщины", "💍"),
-    CELEBRATION("Праздники", "🎉")
+enum class ReminderFilter(val emoji: String) {
+    ALL("✨"),
+    UPCOMING("⭐"),
+    BIRTHDAY("🎂"),
+    ANNIVERSARY("💍"),
+    CELEBRATION("🎉")
+}
+
+/** Локализованная подпись фильтра напоминаний. */
+@Composable
+fun ReminderFilter.localizedLabel(): String = when (this) {
+    ReminderFilter.ALL -> stringResource(R.string.filter_all)
+    ReminderFilter.UPCOMING -> stringResource(R.string.filter_upcoming)
+    ReminderFilter.BIRTHDAY -> stringResource(R.string.filter_birthday)
+    ReminderFilter.ANNIVERSARY -> stringResource(R.string.filter_anniversary)
+    ReminderFilter.CELEBRATION -> stringResource(R.string.filter_celebration)
 }
 
 fun SpecialReminder.matchesFilter(filter: ReminderFilter): Boolean {
@@ -158,6 +167,9 @@ fun RemindersScreen(
         appData.notifications.count { !it.isRead }
     }
 
+    val monthNames = stringArrayResource(R.array.month_names_genitive)
+    val zodiacNames = stringArrayResource(R.array.zodiac_signs)
+
     val sortedReminders = remember(appData.specialReminders) {
         appData.specialReminders.sortedBy { getDaysUntilEvent(it.day, it.month) }
     }
@@ -168,15 +180,15 @@ fun RemindersScreen(
         }
     }
 
-    val filteredReminders = remember(sortedReminders, searchQuery, selectedFilter) {
+    val filteredReminders = remember(sortedReminders, searchQuery, selectedFilter, monthNames, zodiacNames) {
         sortedReminders.filter { reminder ->
             val matchesSearch = if (searchQuery.isBlank()) true else {
                 val q = searchQuery.trim().lowercase()
                 val zodiac = getZodiacSign(reminder.day, reminder.month)
                 reminder.title.lowercase().contains(q) ||
                         reminder.notes.lowercase().contains(q) ||
-                        MONTH_NAMES.getOrElse(reminder.month - 1) { "" }.contains(q) ||
-                        zodiac.name.lowercase().contains(q)
+                        monthNames.getOrElse(reminder.month - 1) { "" }.contains(q) ||
+                        zodiacNames.getOrElse(zodiac.index) { "" }.lowercase().contains(q)
             }
             val matchesCategory = reminder.matchesFilter(selectedFilter)
             matchesSearch && matchesCategory
@@ -197,7 +209,7 @@ fun RemindersScreen(
                                 .padding(horizontal = 6.dp, vertical = 4.dp)
                         ) {
                             Text(
-                                "Напоминания",
+                                stringResource(R.string.nav_reminders),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 28.sp,
                                 letterSpacing = (-0.5).sp
@@ -205,7 +217,7 @@ fun RemindersScreen(
                             Spacer(Modifier.width(4.dp))
                             Icon(
                                 Icons.Default.ArrowDropDown,
-                                contentDescription = "Меню",
+                                contentDescription = stringResource(R.string.menu),
                                 tint = MaterialTheme.colorScheme.onBackground
                             )
                         }
@@ -218,7 +230,7 @@ fun RemindersScreen(
                             modifier = Modifier.background(MaterialTheme.colorScheme.surface)
                         ) {
                             DropdownMenuItem(
-                                text = { Text("Списки", fontWeight = FontWeight.SemiBold) },
+                                text = { Text(stringResource(R.string.nav_lists), fontWeight = FontWeight.SemiBold) },
                                 leadingIcon = {
                                     Icon(Icons.Default.List, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                                 },
@@ -229,7 +241,7 @@ fun RemindersScreen(
                             )
 
                             DropdownMenuItem(
-                                text = { Text("Архив", fontWeight = FontWeight.SemiBold) },
+                                text = { Text(stringResource(R.string.nav_archive), fontWeight = FontWeight.SemiBold) },
                                 leadingIcon = {
                                     Icon(Icons.Default.Archive, contentDescription = null, tint = Color(0xFFFF9500))
                                 },
@@ -240,7 +252,7 @@ fun RemindersScreen(
                             )
 
                             DropdownMenuItem(
-                                text = { Text("Статистика", fontWeight = FontWeight.SemiBold) },
+                                text = { Text(stringResource(R.string.nav_stats), fontWeight = FontWeight.SemiBold) },
                                 leadingIcon = {
                                     Icon(Icons.Default.TrendingUp, contentDescription = null, tint = Color(0xFF34C759))
                                 },
@@ -253,7 +265,7 @@ fun RemindersScreen(
                             HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
 
                             DropdownMenuItem(
-                                text = { Text("Настройки") },
+                                text = { Text(stringResource(R.string.settings_title)) },
                                 leadingIcon = {
                                     Icon(Icons.Default.Settings, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                                 },
@@ -279,7 +291,7 @@ fun RemindersScreen(
                         ) {
                             Icon(
                                 if (unreadNotifsCount > 0) Icons.Default.Notifications else Icons.Default.NotificationsNone,
-                                contentDescription = "Уведомления",
+                                contentDescription = stringResource(R.string.notifications),
                                 tint = MaterialTheme.colorScheme.onBackground
                             )
                         }
@@ -300,7 +312,7 @@ fun RemindersScreen(
             ) {
                 Icon(
                     Icons.Default.Add,
-                    contentDescription = "Добавить дату",
+                    contentDescription = stringResource(R.string.reminder_add_date),
                     modifier = Modifier.size(28.dp)
                 )
             }
@@ -319,7 +331,7 @@ fun RemindersScreen(
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    placeholder = { Text("Поиск дней рождения и дат...") },
+                    placeholder = { Text(stringResource(R.string.reminders_search_hint)) },
                     leadingIcon = {
                         Icon(
                             Icons.Default.Search,
@@ -332,7 +344,7 @@ fun RemindersScreen(
                             IconButton(onClick = { searchQuery = "" }) {
                                 Icon(
                                     Icons.Default.Clear,
-                                    contentDescription = "Очистить",
+                                    contentDescription = stringResource(R.string.clear),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -364,7 +376,7 @@ fun RemindersScreen(
                             onClick = { selectedFilter = filter },
                             label = {
                                 Text(
-                                    "${filter.emoji} ${filter.label} ($count)",
+                                    "${filter.emoji} ${filter.localizedLabel()} ($count)",
                                     fontSize = 12.sp,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                                 )
@@ -397,7 +409,7 @@ fun RemindersScreen(
                             Spacer(Modifier.height(16.dp))
 
                             Text(
-                                if (searchQuery.isNotBlank() || selectedFilter != ReminderFilter.ALL) "Ничего не найдено" else "Нет напоминаний",
+                                if (searchQuery.isNotBlank() || selectedFilter != ReminderFilter.ALL) stringResource(R.string.nothing_found) else stringResource(R.string.reminders_empty_title),
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onBackground
@@ -406,8 +418,8 @@ fun RemindersScreen(
                             Spacer(Modifier.height(6.dp))
 
                             Text(
-                                if (searchQuery.isNotBlank() || selectedFilter != ReminderFilter.ALL) "Попробуйте изменить поисковый запрос или фильтр"
-                                else "Запишите дни рождения близких и важные события — приложение заранее напомнит о них!",
+                                if (searchQuery.isNotBlank() || selectedFilter != ReminderFilter.ALL) stringResource(R.string.reminders_empty_filter_sub)
+                                else stringResource(R.string.reminders_empty_sub),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
@@ -423,7 +435,7 @@ fun RemindersScreen(
                                 ) {
                                     Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                                     Spacer(Modifier.width(8.dp))
-                                    Text("Добавить напоминание", fontWeight = FontWeight.SemiBold)
+                                    Text(stringResource(R.string.reminders_add_btn), fontWeight = FontWeight.SemiBold)
                                 }
                             }
                         }
@@ -432,7 +444,7 @@ fun RemindersScreen(
             } else {
                 item {
                     Text(
-                        "НАЙДЕНО СОБЫТИЙ: ${filteredReminders.size}",
+                        stringResource(R.string.reminders_found, filteredReminders.size),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
@@ -454,9 +466,9 @@ fun RemindersScreen(
 
     if (showAddDialog) {
         SpecialReminderDialog(
-            title = "Новое напоминание",
+            title = stringResource(R.string.reminder_new),
             initialReminder = null,
-            confirmText = "Создать",
+            confirmText = stringResource(R.string.create),
             onConfirm = { title, day, month, year, emoji, advanceDays, hour, minute, notes ->
                 viewModel.addSpecialReminder(
                     title = title,
@@ -477,9 +489,9 @@ fun RemindersScreen(
 
     editingReminder?.let { rem ->
         SpecialReminderDialog(
-            title = "Изменить напоминание",
+            title = stringResource(R.string.reminder_edit),
             initialReminder = rem,
-            confirmText = "Сохранить",
+            confirmText = stringResource(R.string.save),
             onConfirm = { title, day, month, year, emoji, advanceDays, hour, minute, notes ->
                 viewModel.updateSpecialReminder(
                     id = rem.id,
@@ -503,8 +515,8 @@ fun RemindersScreen(
         AlertDialog(
             onDismissRequest = { deletingReminder = null },
             shape = RoundedCornerShape(22.dp),
-            title = { Text("Удалить напоминание?") },
-            text = { Text("Напоминание для «${rem.title}» будет удалено.") },
+            title = { Text(stringResource(R.string.reminder_delete_q)) },
+            text = { Text(stringResource(R.string.reminder_delete_msg, rem.title)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -512,12 +524,12 @@ fun RemindersScreen(
                         deletingReminder = null
                     }
                 ) {
-                    Text("Удалить", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { deletingReminder = null }) {
-                    Text("Отмена")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -531,9 +543,10 @@ fun ReminderCard(
     onDelete: () -> Unit
 ) {
     val daysUntil = getDaysUntilEvent(reminder.day, reminder.month)
-    val monthName = MONTH_NAMES.getOrElse(reminder.month - 1) { "" }
+    val monthName = stringArrayResource(R.array.month_names_genitive).getOrElse(reminder.month - 1) { "" }
     val age = calculateAge(reminder.year, reminder.day, reminder.month)
     val zodiac = getZodiacSign(reminder.day, reminder.month)
+    val zodiacName = stringArrayResource(R.array.zodiac_signs).getOrElse(zodiac.index) { "" }
 
     Surface(
         shape = RoundedCornerShape(18.dp),
@@ -598,7 +611,7 @@ fun ReminderCard(
                         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
                     ) {
                         Text(
-                            text = "${zodiac.symbol} ${zodiac.name}",
+                            text = "${zodiac.symbol} $zodiacName",
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -611,11 +624,11 @@ fun ReminderCard(
 
                 // Информация о напоминании
                 val advanceInfo = when (reminder.advanceDays) {
-                    0 -> "В день события"
-                    1 -> "За 1 день"
-                    3 -> "За 3 дня"
-                    7 -> "За неделю"
-                    else -> "За ${reminder.advanceDays} дн."
+                    0 -> stringResource(R.string.advance_same_day)
+                    1 -> stringResource(R.string.advance_1d)
+                    3 -> stringResource(R.string.advance_3d)
+                    7 -> stringResource(R.string.advance_week)
+                    else -> stringResource(R.string.advance_days_fmt, reminder.advanceDays)
                 }
                 val timeStr = "%02d:%02d".format(reminder.notifyHour, reminder.notifyMinute)
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -627,7 +640,7 @@ fun ReminderCard(
                     )
                     Spacer(Modifier.width(4.dp))
                     Text(
-                        "$advanceInfo в $timeStr",
+                        stringResource(R.string.advance_in, advanceInfo, timeStr),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary,
                         fontSize = 11.sp
@@ -665,13 +678,10 @@ fun ReminderCard(
                     else -> MaterialTheme.colorScheme.onSurfaceVariant
                 }
                 val badgeText = when {
-                    daysUntil == 0 -> "Сегодня! 🎉"
-                    daysUntil == 1 -> "Завтра"
-                    daysUntil < 30 -> "через $daysUntil дн."
-                    else -> {
-                        val months = daysUntil / 30
-                        "через $months мес."
-                    }
+                    daysUntil == 0 -> stringResource(R.string.badge_today)
+                    daysUntil == 1 -> stringResource(R.string.badge_tomorrow)
+                    daysUntil < 30 -> stringResource(R.string.badge_in_days, daysUntil)
+                    else -> stringResource(R.string.badge_in_months, daysUntil / 30)
                 }
 
                 Surface(
@@ -695,7 +705,7 @@ fun ReminderCard(
                     ) {
                         Icon(
                             Icons.Default.Edit,
-                            contentDescription = "Редактировать",
+                            contentDescription = stringResource(R.string.edit),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(16.dp)
                         )
@@ -707,7 +717,7 @@ fun ReminderCard(
                     ) {
                         Icon(
                             Icons.Default.DeleteOutline,
-                            contentDescription = "Удалить",
+                            contentDescription = stringResource(R.string.delete),
                             tint = MaterialTheme.colorScheme.error,
                             modifier = Modifier.size(16.dp)
                         )
@@ -778,12 +788,12 @@ fun SpecialReminderDialog(
                     }
                     showDatePicker = false
                 }) {
-                    Text("Выбрать", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.choose), fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = false }) {
-                    Text("Отмена")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         ) {
@@ -797,7 +807,7 @@ fun SpecialReminderDialog(
         )
         AlertDialog(
             onDismissRequest = { showTimePicker = false },
-            title = { Text("Время напоминания") },
+            title = { Text(stringResource(R.string.reminder_time_title)) },
             text = {
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                     TimePicker(state = timePickerState)
@@ -812,12 +822,12 @@ fun SpecialReminderDialog(
                     },
                     shape = RoundedCornerShape(14.dp)
                 ) {
-                    Text("Выбрать")
+                    Text(stringResource(R.string.choose))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showTimePicker = false }) {
-                    Text("Отмена")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -845,8 +855,8 @@ fun SpecialReminderDialog(
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
-                        label = { Text("Имя или событие") },
-                        placeholder = { Text("Например: День рождения мамы") },
+                        label = { Text(stringResource(R.string.reminder_name_label)) },
+                        placeholder = { Text(stringResource(R.string.reminder_name_hint)) },
                         singleLine = true,
                         shape = RoundedCornerShape(14.dp),
                         modifier = Modifier.fillMaxWidth()
@@ -855,7 +865,7 @@ fun SpecialReminderDialog(
                     // Выбор эмодзи
                     Column {
                         Text(
-                            "Значок события:",
+                            stringResource(R.string.reminder_icon_label),
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -902,7 +912,7 @@ fun SpecialReminderDialog(
                         ) {
                             Icon(Icons.Default.CalendarMonth, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(Modifier.width(6.dp))
-                            val monthStr = MONTH_NAMES.getOrElse(selectedMonth - 1) { "" }
+                            val monthStr = stringArrayResource(R.array.month_names_genitive).getOrElse(selectedMonth - 1) { "" }
                             Text("$selectedDay $monthStr", fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
                         }
 
@@ -913,7 +923,7 @@ fun SpecialReminderDialog(
                                     birthYearText = it
                                 }
                             },
-                            label = { Text("Год (опц.)") },
+                            label = { Text(stringResource(R.string.year_label)) },
                             placeholder = { Text("1998") },
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -925,7 +935,7 @@ fun SpecialReminderDialog(
                     // За сколько напомнить
                     Column {
                         Text(
-                            "За сколько напомнить:",
+                            stringResource(R.string.advance_label),
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -936,10 +946,10 @@ fun SpecialReminderDialog(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             listOf(
-                                0 to "В тот же день",
-                                1 to "За 1 день",
-                                3 to "За 3 дня",
-                                7 to "За неделю"
+                                0 to stringResource(R.string.advance_chip_same_day),
+                                1 to stringResource(R.string.advance_1d),
+                                3 to stringResource(R.string.advance_3d),
+                                7 to stringResource(R.string.advance_week)
                             ).forEach { (days, label) ->
                                 val isSelected = advanceDays == days
                                 FilterChip(
@@ -959,7 +969,7 @@ fun SpecialReminderDialog(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            "Время напоминания:",
+                            stringResource(R.string.notify_time_label),
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -980,8 +990,8 @@ fun SpecialReminderDialog(
                     OutlinedTextField(
                         value = notes,
                         onValueChange = { notes = it },
-                        label = { Text("Заметки (идеи подарка, поздравление)") },
-                        placeholder = { Text("Подарить книгу, заказать торт...") },
+                        label = { Text(stringResource(R.string.reminder_notes_label)) },
+                        placeholder = { Text(stringResource(R.string.reminder_notes_hint)) },
                         maxLines = 2,
                         shape = RoundedCornerShape(14.dp),
                         modifier = Modifier.fillMaxWidth()
@@ -1012,7 +1022,7 @@ fun SpecialReminderDialog(
             },
             dismissButton = {
                 TextButton(onClick = onDismiss) {
-                    Text("Отмена")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )

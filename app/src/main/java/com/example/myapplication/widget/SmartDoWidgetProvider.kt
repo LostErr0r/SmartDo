@@ -10,7 +10,6 @@ import android.widget.RemoteViews
 import com.example.myapplication.MainActivity
 import com.example.myapplication.R
 import com.example.myapplication.data.TaskRepository
-import com.example.myapplication.ui.MONTH_NAMES
 import com.example.myapplication.ui.getDaysUntilEvent
 import com.example.myapplication.ui.isDueToday
 import kotlinx.coroutines.CoroutineScope

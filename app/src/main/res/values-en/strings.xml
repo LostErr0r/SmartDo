@@ -194,4 +194,102 @@
         <item>Sat</item>
         <item>Sun</item>
     </string-array>
+
+    <!-- Common menu items -->
+    <string name="nav_lists">Lists</string>
+
+    <!-- Archive -->
+    <string name="archive_clear_all">Clear entire archive</string>
+    <string name="archive_empty_title">Archive is empty</string>
+    <string name="archive_empty_sub">When you complete or delete tasks,\nthey\'ll be kept here for history or quick restore.</string>
+    <string name="archive_clear_q">Clear archive?</string>
+    <string name="archive_clear_msg">All archived tasks will be permanently deleted.</string>
+    <string name="badge_done">Completed</string>
+    <string name="badge_deleted">Deleted</string>
+    <string name="restore">Restore</string>
+    <string name="delete_forever">Delete forever</string>
+
+    <!-- Notifications -->
+    <string name="notif_clear_history">Clear history</string>
+    <string name="notif_empty_title">No notifications</string>
+    <string name="notif_empty_sub">Time-based reminders will appear here</string>
+
+    <!-- Statistics -->
+    <string name="stats_productivity">PRODUCTIVITY</string>
+    <string name="stats_closed">Closed</string>
+    <string name="stats_msg_empty">Add tasks to start tracking progress</string>
+    <string name="stats_msg_all">🎉 Amazing! All active tasks are done!</string>
+    <string name="stats_msg_half">🔥 Great pace, more than half done!</string>
+    <string name="stats_msg_start">💪 Good start, keep closing tasks!</string>
+    <string name="stats_in_progress">In progress</string>
+    <string name="stats_completed">Completed</string>
+    <string name="stats_memorable_dates">Memorable dates</string>
+    <string name="stats_checklists">Checklists</string>
+    <string name="stats_by_category">BY CATEGORY</string>
+
+    <!-- Reminders (special dates) -->
+    <string name="reminder_add_date">Add date</string>
+    <string name="reminders_search_hint">Search birthdays and dates…</string>
+    <string name="filter_all">All</string>
+    <string name="filter_upcoming">Upcoming (30 d)</string>
+    <string name="filter_birthday">Birthdays</string>
+    <string name="filter_anniversary">Anniversaries</string>
+    <string name="filter_celebration">Celebrations</string>
+    <string name="reminders_empty_title">No reminders</string>
+    <string name="reminders_empty_filter_sub">Try changing your search query or filter</string>
+    <string name="reminders_empty_sub">Save birthdays of loved ones and important events — the app will remind you in advance!</string>
+    <string name="reminders_add_btn">Add reminder</string>
+    <string name="reminders_found">EVENTS FOUND: %d</string>
+    <string name="reminder_new">New reminder</string>
+    <string name="reminder_edit">Edit reminder</string>
+    <string name="reminder_delete_q">Delete reminder?</string>
+    <string name="reminder_delete_msg">The reminder for “%s” will be deleted.</string>
+    <string name="advance_same_day">On the event day</string>
+    <string name="advance_chip_same_day">On the day</string>
+    <string name="advance_1d">1 day before</string>
+    <string name="advance_3d">3 days before</string>
+    <string name="advance_week">1 week before</string>
+    <string name="advance_days_fmt">%d days before</string>
+    <string name="advance_in">%1$s at %2$s</string>
+    <string name="badge_today">Today! 🎉</string>
+    <string name="badge_tomorrow">Tomorrow</string>
+    <string name="badge_in_days">in %d d</string>
+    <string name="badge_in_months">in %d mo</string>
+    <string name="reminder_name_label">Name or event</string>
+    <string name="reminder_name_hint">e.g. Mom\'s birthday</string>
+    <string name="reminder_icon_label">Event icon:</string>
+    <string name="year_label">Year (opt.)</string>
+    <string name="advance_label">Remind in advance:</string>
+    <string name="notify_time_label">Reminder time:</string>
+    <string name="reminder_time_title">Reminder time</string>
+    <string name="reminder_notes_label">Notes (gift ideas, greeting)</string>
+    <string name="reminder_notes_hint">Give a book, order a cake…</string>
+    <string-array name="month_names_genitive">
+        <item>January</item>
+        <item>February</item>
+        <item>March</item>
+        <item>April</item>
+        <item>May</item>
+        <item>June</item>
+        <item>July</item>
+        <item>August</item>
+        <item>September</item>
+        <item>October</item>
+        <item>November</item>
+        <item>December</item>
+    </string-array>
+    <string-array name="zodiac_signs">
+        <item>Aries</item>
+        <item>Taurus</item>
+        <item>Gemini</item>
+        <item>Cancer</item>
+        <item>Leo</item>
+        <item>Virgo</item>
+        <item>Libra</item>
+        <item>Scorpio</item>
+        <item>Sagittarius</item>
+        <item>Capricorn</item>
+        <item>Aquarius</item>
+        <item>Pisces</item>
+    </string-array>
 </resources>

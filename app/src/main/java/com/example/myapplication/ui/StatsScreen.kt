@@ -25,12 +25,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.R
 import com.example.myapplication.TaskViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -93,7 +95,7 @@ fun StatsScreen(
                                 .padding(horizontal = 6.dp, vertical = 4.dp)
                         ) {
                             Text(
-                                "Статистика",
+                                stringResource(R.string.nav_stats),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 28.sp,
                                 letterSpacing = (-0.5).sp
@@ -101,7 +103,7 @@ fun StatsScreen(
                             Spacer(Modifier.width(4.dp))
                             Icon(
                                 Icons.Default.ArrowDropDown,
-                                contentDescription = "Меню",
+                                contentDescription = stringResource(R.string.menu),
                                 tint = MaterialTheme.colorScheme.onBackground
                             )
                         }
@@ -113,7 +115,7 @@ fun StatsScreen(
                             modifier = Modifier.background(MaterialTheme.colorScheme.surface)
                         ) {
                             DropdownMenuItem(
-                                text = { Text("Списки", fontWeight = FontWeight.SemiBold) },
+                                text = { Text(stringResource(R.string.nav_lists), fontWeight = FontWeight.SemiBold) },
                                 leadingIcon = {
                                     Icon(Icons.Default.List, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                                 },
@@ -124,7 +126,7 @@ fun StatsScreen(
                             )
 
                             DropdownMenuItem(
-                                text = { Text("Напоминания", fontWeight = FontWeight.SemiBold) },
+                                text = { Text(stringResource(R.string.nav_reminders), fontWeight = FontWeight.SemiBold) },
                                 leadingIcon = {
                                     Icon(Icons.Default.Cake, contentDescription = null, tint = Color(0xFFFF2D55))
                                 },
@@ -135,7 +137,7 @@ fun StatsScreen(
                             )
 
                             DropdownMenuItem(
-                                text = { Text("Архив", fontWeight = FontWeight.SemiBold) },
+                                text = { Text(stringResource(R.string.nav_archive), fontWeight = FontWeight.SemiBold) },
                                 leadingIcon = {
                                     Icon(Icons.Default.Archive, contentDescription = null, tint = Color(0xFFFF9500))
                                 },
@@ -148,7 +150,7 @@ fun StatsScreen(
                             HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
 
                             DropdownMenuItem(
-                                text = { Text("Настройки") },
+                                text = { Text(stringResource(R.string.settings_title)) },
                                 leadingIcon = {
                                     Icon(Icons.Default.Settings, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                                 },
@@ -173,7 +175,7 @@ fun StatsScreen(
                         ) {
                             Icon(
                                 if (unreadNotifsCount > 0) Icons.Default.Notifications else Icons.Default.NotificationsNone,
-                                contentDescription = "Уведомления",
+                                contentDescription = stringResource(R.string.notifications),
                                 tint = MaterialTheme.colorScheme.onBackground
                             )
                         }
@@ -208,7 +210,7 @@ fun StatsScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            "ПРОДУКТИВНОСТЬ",
+                            stringResource(R.string.stats_productivity),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary,
@@ -239,7 +241,7 @@ fun StatsScreen(
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Text(
-                                    "Закрыто",
+                                    stringResource(R.string.stats_closed),
                                     fontSize = 11.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -250,10 +252,10 @@ fun StatsScreen(
 
                         Text(
                             when {
-                                totalTasks == 0 -> "Добавьте задачи, чтобы начать отслеживать прогресс"
-                                completionRate == 1f -> "🎉 Потрясающе! Все активные дела завершены!"
-                                completionRate >= 0.5f -> "🔥 Отличный темп, больше половины сделано!"
-                                else -> "💪 Начало положено, продолжайте закрывать дела!"
+                                totalTasks == 0 -> stringResource(R.string.stats_msg_empty)
+                                completionRate == 1f -> stringResource(R.string.stats_msg_all)
+                                completionRate >= 0.5f -> stringResource(R.string.stats_msg_half)
+                                else -> stringResource(R.string.stats_msg_start)
                             },
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Medium,
@@ -274,13 +276,13 @@ fun StatsScreen(
                         modifier = Modifier.weight(1f),
                         emoji = "📋",
                         value = "$activeTasks",
-                        label = "В работе"
+                        label = stringResource(R.string.stats_in_progress)
                     )
                     MetricCard(
                         modifier = Modifier.weight(1f),
                         emoji = "✅",
                         value = "$totalAllCompleted",
-                        label = "Выполнено"
+                        label = stringResource(R.string.stats_completed)
                     )
                 }
             }
@@ -294,13 +296,13 @@ fun StatsScreen(
                         modifier = Modifier.weight(1f),
                         emoji = "🎂",
                         value = "${appData.specialReminders.size}",
-                        label = "Памятных дат"
+                        label = stringResource(R.string.stats_memorable_dates)
                     )
                     MetricCard(
                         modifier = Modifier.weight(1f),
                         emoji = "☑️",
                         value = "$doneSubtasks/$totalSubtasks",
-                        label = "Чек-листы"
+                        label = stringResource(R.string.stats_checklists)
                     )
                 }
             }
@@ -309,7 +311,7 @@ fun StatsScreen(
             if (appData.categories.isNotEmpty()) {
                 item {
                     Text(
-                        "ПО КАТЕГОРИЯМ",
+                        stringResource(R.string.stats_by_category),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,

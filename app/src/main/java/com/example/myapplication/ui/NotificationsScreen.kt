@@ -15,17 +15,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.R
 import com.example.myapplication.TaskViewModel
 import com.example.myapplication.data.AppNotification
 import java.text.SimpleDateFormat
 import java.util.*
 
-private val notifDateFormatter = SimpleDateFormat("d MMM, HH:mm", Locale("ru"))
+private val notifDateFormatter get() = SimpleDateFormat("d MMM, HH:mm", Locale.getDefault())
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,7 +49,7 @@ fun NotificationsScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Уведомления",
+                        stringResource(R.string.notifications),
                         fontWeight = FontWeight.Bold,
                         fontSize = 22.sp,
                         letterSpacing = (-0.3).sp
@@ -57,7 +59,7 @@ fun NotificationsScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Назад",
+                            contentDescription = stringResource(R.string.back),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -67,7 +69,7 @@ fun NotificationsScreen(
                         IconButton(onClick = { viewModel.clearAllNotifications() }) {
                             Icon(
                                 Icons.Default.DeleteSweep,
-                                contentDescription = "Очистить историю",
+                                contentDescription = stringResource(R.string.notif_clear_history),
                                 tint = MaterialTheme.colorScheme.error
                             )
                         }
@@ -91,14 +93,14 @@ fun NotificationsScreen(
                     Text("🔔", fontSize = 52.sp)
                     Spacer(Modifier.height(14.dp))
                     Text(
-                        "Нет уведомлений",
+                        stringResource(R.string.notif_empty_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        "Здесь будут отображаться напоминания по времени",
+                        stringResource(R.string.notif_empty_sub),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

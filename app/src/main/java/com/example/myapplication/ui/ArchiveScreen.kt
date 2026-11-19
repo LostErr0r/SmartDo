@@ -28,16 +28,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.R
 import com.example.myapplication.TaskViewModel
 import com.example.myapplication.data.ArchivedTask
 import java.text.SimpleDateFormat
 import java.util.*
 
-private val archiveDateFormatter = SimpleDateFormat("d MMM, HH:mm", Locale("ru"))
+private val archiveDateFormatter get() = SimpleDateFormat("d MMM, HH:mm", Locale.getDefault())
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,7 +74,7 @@ fun ArchiveScreen(
                                 .padding(horizontal = 6.dp, vertical = 4.dp)
                         ) {
                             Text(
-                                "Архив",
+                                stringResource(R.string.nav_archive),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 28.sp,
                                 letterSpacing = (-0.5).sp
@@ -80,7 +82,7 @@ fun ArchiveScreen(
                             Spacer(Modifier.width(4.dp))
                             Icon(
                                 Icons.Default.ArrowDropDown,
-                                contentDescription = "Меню",
+                                contentDescription = stringResource(R.string.menu),
                                 tint = MaterialTheme.colorScheme.onBackground
                             )
                         }
@@ -93,7 +95,7 @@ fun ArchiveScreen(
                             modifier = Modifier.background(MaterialTheme.colorScheme.surface)
                         ) {
                             DropdownMenuItem(
-                                text = { Text("Списки", fontWeight = FontWeight.SemiBold) },
+                                text = { Text(stringResource(R.string.nav_lists), fontWeight = FontWeight.SemiBold) },
                                 leadingIcon = {
                                     Icon(Icons.Default.List, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                                 },
@@ -104,7 +106,7 @@ fun ArchiveScreen(
                             )
 
                             DropdownMenuItem(
-                                text = { Text("Напоминания", fontWeight = FontWeight.SemiBold) },
+                                text = { Text(stringResource(R.string.nav_reminders), fontWeight = FontWeight.SemiBold) },
                                 leadingIcon = {
                                     Icon(Icons.Default.Cake, contentDescription = null, tint = Color(0xFFFF2D55))
                                 },
@@ -115,7 +117,7 @@ fun ArchiveScreen(
                             )
 
                             DropdownMenuItem(
-                                text = { Text("Статистика", fontWeight = FontWeight.SemiBold) },
+                                text = { Text(stringResource(R.string.nav_stats), fontWeight = FontWeight.SemiBold) },
                                 leadingIcon = {
                                     Icon(Icons.Default.TrendingUp, contentDescription = null, tint = Color(0xFF34C759))
                                 },
@@ -128,7 +130,7 @@ fun ArchiveScreen(
                             HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
 
                             DropdownMenuItem(
-                                text = { Text("Настройки") },
+                                text = { Text(stringResource(R.string.settings_title)) },
                                 leadingIcon = {
                                     Icon(Icons.Default.Settings, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                                 },
@@ -145,7 +147,7 @@ fun ArchiveScreen(
                         IconButton(onClick = { showClearDialog = true }) {
                             Icon(
                                 Icons.Default.DeleteSweep,
-                                contentDescription = "Очистить весь архив",
+                                contentDescription = stringResource(R.string.archive_clear_all),
                                 tint = MaterialTheme.colorScheme.error
                             )
                         }
@@ -164,7 +166,7 @@ fun ArchiveScreen(
                         ) {
                             Icon(
                                 if (unreadNotifsCount > 0) Icons.Default.Notifications else Icons.Default.NotificationsNone,
-                                contentDescription = "Уведомления",
+                                contentDescription = stringResource(R.string.notifications),
                                 tint = MaterialTheme.colorScheme.onBackground
                             )
                         }
@@ -202,7 +204,7 @@ fun ArchiveScreen(
                     Spacer(Modifier.height(20.dp))
 
                     Text(
-                        text = "Архив пуст",
+                        text = stringResource(R.string.archive_empty_title),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
@@ -211,7 +213,7 @@ fun ArchiveScreen(
                     Spacer(Modifier.height(8.dp))
 
                     Text(
-                        text = "Когда вы выполните или удалите задачи,\nони сохранятся здесь для истории или быстрого восстановления.",
+                        text = stringResource(R.string.archive_empty_sub),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
@@ -244,8 +246,8 @@ fun ArchiveScreen(
             onDismissRequest = { showClearDialog = false },
             shape = RoundedCornerShape(24.dp),
             containerColor = MaterialTheme.colorScheme.surface,
-            title = { Text("Очистить архив?", fontWeight = FontWeight.Bold) },
-            text = { Text("Все задачи из архива будут удалены навсегда.") },
+            title = { Text(stringResource(R.string.archive_clear_q), fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.archive_clear_msg)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -254,10 +256,10 @@ fun ArchiveScreen(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                     shape = RoundedCornerShape(12.dp)
-                ) { Text("Очистить", color = Color.White) }
+                ) { Text(stringResource(R.string.clear), color = Color.White) }
             },
             dismissButton = {
-                TextButton(onClick = { showClearDialog = false }) { Text("Отмена") }
+                TextButton(onClick = { showClearDialog = false }) { Text(stringResource(R.string.cancel)) }
             }
         )
     }
@@ -287,7 +289,7 @@ fun ArchivedItemCard(
                     // Бейдж причины
                     val isDone = item.reason == "completed"
                     val badgeColor = if (isDone) Color(0xFF34C759) else MaterialTheme.colorScheme.error
-                    val badgeText = if (isDone) "Выполнено" else "Удалено"
+                    val badgeText = if (isDone) stringResource(R.string.badge_done) else stringResource(R.string.badge_deleted)
 
                     Surface(
                         shape = RoundedCornerShape(6.dp),
@@ -343,7 +345,7 @@ fun ArchivedItemCard(
                 IconButton(onClick = onRestore, modifier = Modifier.size(36.dp)) {
                     Icon(
                         Icons.Default.Restore,
-                        contentDescription = "Восстановить",
+                        contentDescription = stringResource(R.string.restore),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(20.dp)
                     )
@@ -352,7 +354,7 @@ fun ArchivedItemCard(
                 IconButton(onClick = onDeletePermanent, modifier = Modifier.size(36.dp)) {
                     Icon(
                         Icons.Default.DeleteForever,
-                        contentDescription = "Удалить навсегда",
+                        contentDescription = stringResource(R.string.delete_forever),
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(20.dp)
                     )
