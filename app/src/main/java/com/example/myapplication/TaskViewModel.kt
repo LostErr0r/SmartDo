@@ -121,6 +121,32 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    // ── Переупорядочивание (drag-and-drop) ────────────────
+
+    /** Задать новый порядок активных задач в категории. Завершённые остаются в конце. */
+    fun reorderTasks(categoryId: Long, orderedActiveIds: List<Long>) {
+        viewModelScope.launch {
+            val cats = appData.value.categories.map { cat ->
+                if (cat.id == categoryId) {
+                    val byId = cat.tasks.associateBy { it.id }
+                    val newActive = orderedActiveIds.mapNotNull { byId[it] }
+                    val completed = cat.tasks.filter { it.isDone }
+                    cat.copy(tasks = newActive + completed)
+                } else cat
+            }
+            repository.saveData(appData.value.copy(categories = cats))
+        }
+    }
+
+    /** Задать новый порядок категорий. */
+    fun reorderCategories(orderedIds: List<Long>) {
+        viewModelScope.launch {
+            val byId = appData.value.categories.associateBy { it.id }
+            val newCats = orderedIds.mapNotNull { byId[it] }
+            repository.saveData(appData.value.copy(categories = newCats))
+        }
+    }
+
     // ── Категории ─────────────────────────────────────────
 
     fun addCategory(name: String, emoji: String) {

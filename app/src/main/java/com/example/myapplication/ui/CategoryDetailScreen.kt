@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -29,6 +31,7 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
@@ -41,6 +44,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -127,7 +132,8 @@ fun CategoryDetailScreen(
         onToggleTask = { taskId -> viewModel.toggleTask(categoryId, taskId) },
         onToggleSubtask = { taskId, subtaskId -> viewModel.toggleSubtask(categoryId, taskId, subtaskId) },
         onDeleteTask = { taskId -> viewModel.deleteTask(categoryId, taskId) },
-        onUndoDelete = { viewModel.undoDelete() }
+        onUndoDelete = { viewModel.undoDelete() },
+        onReorderTasks = { ids -> viewModel.reorderTasks(categoryId, ids) }
     )
 }
 
@@ -171,7 +177,8 @@ fun CategoryDetailContent(
     onToggleTask: (Long) -> Unit,
     onToggleSubtask: (Long, Long) -> Unit,
     onDeleteTask: (Long) -> Unit,
-    onUndoDelete: () -> Unit = {}
+    onUndoDelete: () -> Unit = {},
+    onReorderTasks: (List<Long>) -> Unit = {}
 ) {
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
@@ -200,6 +207,21 @@ fun CategoryDetailContent(
             )
             if (result == SnackbarResult.ActionPerformed) onUndoDelete()
         }
+    }
+
+    // Перетаскивание задач «за ручку» (только в ручном режиме сортировки).
+    val dragEnabled = sortMode == "manual"
+    val lazyListState = rememberLazyListState()
+    var orderedActive by remember { mutableStateOf(activeTasks) }
+    val reorderState = rememberReorderListState(
+        listState = lazyListState,
+        draggableRange = { 0 until orderedActive.size },
+        onMove = { from, to ->
+            orderedActive = orderedActive.toMutableList().apply { add(to, removeAt(from)) }
+        }
+    )
+    LaunchedEffect(activeTasks) {
+        if (reorderState.draggingKey == null) orderedActive = activeTasks
     }
 
     Scaffold(
@@ -374,18 +396,48 @@ fun CategoryDetailContent(
 
                 Spacer(Modifier.height(8.dp))
 
+                val displayActive = if (dragEnabled) orderedActive else activeTasks
                 LazyColumn(
+                    state = lazyListState,
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     contentPadding = PaddingValues(bottom = 80.dp)
                 ) {
-                    items(activeTasks, key = { it.id }) { task ->
-                        SwipeableTaskCard(
-                            task = task,
-                            onToggle = { onToggleTask(task.id) },
-                            onToggleSubtask = { subId -> onToggleSubtask(task.id, subId) },
-                            onEdit = { editingTask = task },
-                            onDelete = { deleteWithUndo(task.id) }
-                        )
+                    itemsIndexed(displayActive, key = { _, t -> t.id }) { index, task ->
+                        val isDragging = reorderState.draggingKey == task.id
+                        Box(
+                            modifier = Modifier
+                                .zIndex(if (isDragging) 1f else 0f)
+                                .graphicsLayer {
+                                    translationY = if (isDragging) reorderState.offsetY else 0f
+                                    shadowElevation = if (isDragging) 16f else 0f
+                                }
+                        ) {
+                            SwipeableTaskCard(
+                                task = task,
+                                onToggle = { onToggleTask(task.id) },
+                                onToggleSubtask = { subId -> onToggleSubtask(task.id, subId) },
+                                onEdit = { editingTask = task },
+                                onDelete = { deleteWithUndo(task.id) },
+                                dragHandle = if (dragEnabled) {
+                                    {
+                                        Icon(
+                                            Icons.Default.DragHandle,
+                                            contentDescription = "Перетащить",
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                            modifier = Modifier
+                                                .size(34.dp)
+                                                .padding(7.dp)
+                                                .dragHandle(
+                                                    state = reorderState,
+                                                    index = index,
+                                                    key = task.id,
+                                                    onDragEnd = { onReorderTasks(orderedActive.map { it.id }) }
+                                                )
+                                        )
+                                    }
+                                } else null
+                            )
+                        }
                     }
 
                     if (!hideCompleted && completedTasks.isNotEmpty()) {
@@ -502,7 +554,8 @@ fun SwipeableTaskCard(
     onToggle: () -> Unit,
     onToggleSubtask: (Long) -> Unit = {},
     onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    dragHandle: (@Composable () -> Unit)? = null
 ) {
     val haptic = LocalHapticFeedback.current
     val soundOn = LocalSoundEnabled.current
@@ -603,7 +656,8 @@ fun SwipeableTaskCard(
             onToggle = onToggle,
             onToggleSubtask = onToggleSubtask,
             onEdit = onEdit,
-            onDelete = onDelete
+            onDelete = onDelete,
+            dragHandle = dragHandle
         )
     }
 }
@@ -614,7 +668,8 @@ fun AppleTaskCard(
     onToggle: () -> Unit,
     onToggleSubtask: (Long) -> Unit = {},
     onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    dragHandle: (@Composable () -> Unit)? = null
 ) {
     val overdue = task.isOverdue()
     val dueToday = task.isDueToday()
@@ -749,6 +804,8 @@ fun AppleTaskCard(
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
+                    dragHandle?.invoke()
+
                     IconButton(
                         onClick = onEdit,
                         modifier = Modifier.size(34.dp)

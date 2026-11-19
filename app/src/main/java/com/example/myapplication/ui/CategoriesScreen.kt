@@ -7,6 +7,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -17,6 +19,7 @@ import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsNone
@@ -29,6 +32,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -80,6 +85,7 @@ fun CategoriesScreen(
         onCategoryClick = onCategoryClick,
         onEditCategory = { category -> editingCategory = category },
         onDeleteCategory = { viewModel.deleteCategory(it) },
+        onReorderCategories = { viewModel.reorderCategories(it) },
         onAddClick = { showAddDialog = true }
     )
 
@@ -129,6 +135,7 @@ fun CategoriesContent(
     onCategoryClick: (Long) -> Unit,
     onEditCategory: (Category) -> Unit,
     onDeleteCategory: (Long) -> Unit,
+    onReorderCategories: (List<Long>) -> Unit = {},
     onAddClick: () -> Unit
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
@@ -160,6 +167,23 @@ fun CategoriesContent(
                         cat.tasks.any { it.title.lowercase().contains(q) || it.description.lowercase().contains(q) }
             }
         }
+    }
+
+    // Перетаскивание списков (только без активного поиска).
+    val dragEnabled = searchQuery.isBlank()
+    // Шапка LazyColumn до списков: поиск + смарт-блок + заголовок «Мои списки».
+    val categoriesBaseIndex = 3
+    val lazyListState = rememberLazyListState()
+    var orderedCats by remember { mutableStateOf(filteredCategories) }
+    val reorderState = rememberReorderListState(
+        listState = lazyListState,
+        draggableRange = { categoriesBaseIndex until (categoriesBaseIndex + orderedCats.size) },
+        onMove = { from, to ->
+            orderedCats = orderedCats.toMutableList().apply { add(to, removeAt(from)) }
+        }
+    )
+    LaunchedEffect(filteredCategories) {
+        if (reorderState.draggingKey == null) orderedCats = filteredCategories
     }
 
     Scaffold(
@@ -302,6 +326,7 @@ fun CategoriesContent(
         }
     ) { padding ->
         LazyColumn(
+            state = lazyListState,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
@@ -430,13 +455,42 @@ fun CategoriesContent(
                     }
                 }
             } else {
-                items(filteredCategories, key = { it.id }) { category ->
-                    CategoryItemCard(
-                        category = category,
-                        onClick = { onCategoryClick(category.id) },
-                        onEdit = { onEditCategory(category) },
-                        onDelete = { onDeleteCategory(category.id) }
-                    )
+                val displayCats = if (dragEnabled) orderedCats else filteredCategories
+                itemsIndexed(displayCats, key = { _, c -> c.id }) { index, category ->
+                    val isDragging = reorderState.draggingKey == category.id
+                    Box(
+                        modifier = Modifier
+                            .zIndex(if (isDragging) 1f else 0f)
+                            .graphicsLayer {
+                                translationY = if (isDragging) reorderState.offsetY else 0f
+                                shadowElevation = if (isDragging) 16f else 0f
+                            }
+                    ) {
+                        CategoryItemCard(
+                            category = category,
+                            onClick = { onCategoryClick(category.id) },
+                            onEdit = { onEditCategory(category) },
+                            onDelete = { onDeleteCategory(category.id) },
+                            dragHandle = if (dragEnabled) {
+                                {
+                                    Icon(
+                                        Icons.Default.DragHandle,
+                                        contentDescription = "Перетащить",
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                        modifier = Modifier
+                                            .size(34.dp)
+                                            .padding(7.dp)
+                                            .dragHandle(
+                                                state = reorderState,
+                                                index = categoriesBaseIndex + index,
+                                                key = category.id,
+                                                onDragEnd = { onReorderCategories(orderedCats.map { it.id }) }
+                                            )
+                                    )
+                                }
+                            } else null
+                        )
+                    }
                 }
             }
         }
@@ -505,7 +559,8 @@ fun CategoryItemCard(
     category: Category,
     onClick: () -> Unit,
     onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    dragHandle: (@Composable () -> Unit)? = null
 ) {
     val activeTasks = category.tasks.count { !it.isDone }
 
@@ -552,6 +607,7 @@ fun CategoryItemCard(
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
+                dragHandle?.invoke()
                 IconButton(onClick = onEdit) {
                     Icon(
                         Icons.Default.Edit,
