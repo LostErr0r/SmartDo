@@ -12,11 +12,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.myapplication.R
 import com.example.myapplication.TaskViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,12 +58,12 @@ fun SearchScreen(
                     TextField(
                         value = query,
                         onValueChange = { query = it },
-                        placeholder = { Text("Поиск задач…") },
+                        placeholder = { Text(stringResource(R.string.search_tasks_hint)) },
                         singleLine = true,
                         trailingIcon = {
                             if (query.isNotEmpty()) {
                                 IconButton(onClick = { query = "" }) {
-                                    Icon(Icons.Default.Clear, contentDescription = "Очистить")
+                                    Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.clear))
                                 }
                             }
                         },
@@ -78,7 +80,7 @@ fun SearchScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Назад",
+                            contentDescription = stringResource(R.string.back),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -94,16 +96,16 @@ fun SearchScreen(
             query.isBlank() -> {
                 SearchPlaceholder(
                     emoji = "🔍",
-                    title = "Найдите любую задачу",
-                    subtitle = "Поиск по названию, описанию, подзадачам и названию списка",
+                    title = stringResource(R.string.search_placeholder_title),
+                    subtitle = stringResource(R.string.search_placeholder_sub),
                     padding = padding
                 )
             }
             results.isEmpty() -> {
                 SearchPlaceholder(
                     emoji = "🤷",
-                    title = "Ничего не найдено",
-                    subtitle = "Попробуйте изменить запрос",
+                    title = stringResource(R.string.nothing_found),
+                    subtitle = stringResource(R.string.search_empty_sub),
                     padding = padding
                 )
             }
@@ -118,7 +120,7 @@ fun SearchScreen(
                 ) {
                     item {
                         Text(
-                            "Найдено: ${results.size}",
+                            stringResource(R.string.search_found, results.size),
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -140,7 +142,7 @@ fun SearchScreen(
 
     editingTaskWithCategory?.let { item ->
         TaskDialog(
-            dialogTitle = "Редактировать задачу",
+            dialogTitle = stringResource(R.string.task_edit),
             initialTitle = item.task.title,
             initialDescription = item.task.description,
             initialPriority = item.task.priority,
@@ -148,7 +150,7 @@ fun SearchScreen(
             initialReminderMinutes = item.task.reminderMinutesBefore,
             initialSubtasks = item.task.subtasks,
             initialRepeatRule = item.task.repeatRule,
-            confirmButtonText = "Сохранить",
+            confirmButtonText = stringResource(R.string.save),
             onConfirm = { title, desc, priority, deadline, reminder, subtasks, repeat ->
                 viewModel.updateTask(
                     item.category.id, item.task.id, title, desc, priority, deadline, reminder, subtasks, repeat

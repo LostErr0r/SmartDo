@@ -12,11 +12,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.R
 import com.example.myapplication.TaskViewModel
 import com.example.myapplication.data.Category
 import com.example.myapplication.data.SmartListType
@@ -26,6 +28,15 @@ data class TaskWithCategory(
     val task: Task,
     val category: Category
 )
+
+/** Локализованное название умного списка. */
+@Composable
+fun SmartListType.localizedTitle(): String = when (this) {
+    SmartListType.TODAY -> stringResource(R.string.smart_today)
+    SmartListType.SCHEDULED -> stringResource(R.string.smart_scheduled)
+    SmartListType.OVERDUE -> stringResource(R.string.smart_overdue)
+    SmartListType.ALL -> stringResource(R.string.smart_all)
+}
 
 /** Сортировка задач-с-категорией согласно выбранному режиму. */
 fun List<TaskWithCategory>.sortedByMode(mode: String): List<TaskWithCategory> = when (mode) {
@@ -84,7 +95,7 @@ fun SmartListScreen(
                         Text(type.emoji, fontSize = 24.sp)
                         Spacer(Modifier.width(10.dp))
                         Text(
-                            type.title,
+                            type.localizedTitle(),
                             fontWeight = FontWeight.Bold,
                             fontSize = 22.sp,
                             letterSpacing = (-0.3).sp
@@ -95,7 +106,7 @@ fun SmartListScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Назад",
+                            contentDescription = stringResource(R.string.back),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -104,7 +115,7 @@ fun SmartListScreen(
                     IconButton(onClick = { sortMenuExpanded = true }) {
                         Icon(
                             Icons.AutoMirrored.Filled.Sort,
-                            contentDescription = "Сортировка",
+                            contentDescription = stringResource(R.string.sort),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -127,14 +138,14 @@ fun SmartListScreen(
                     Text(type.emoji, fontSize = 52.sp)
                     Spacer(Modifier.height(14.dp))
                     Text(
-                        "Задач в этом разделе нет",
+                        stringResource(R.string.smart_empty_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        "Все задачи выполнены или не назначены",
+                        stringResource(R.string.smart_empty_sub),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -165,7 +176,7 @@ fun SmartListScreen(
                     item {
                         Spacer(Modifier.height(12.dp))
                         Text(
-                            "Завершённые (${completedTasks.size})",
+                            stringResource(R.string.completed_count, completedTasks.size),
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -189,7 +200,7 @@ fun SmartListScreen(
 
     editingTaskWithCategory?.let { item ->
         TaskDialog(
-            dialogTitle = "Редактировать задачу",
+            dialogTitle = stringResource(R.string.task_edit),
             initialTitle = item.task.title,
             initialDescription = item.task.description,
             initialPriority = item.task.priority,
@@ -197,7 +208,7 @@ fun SmartListScreen(
             initialReminderMinutes = item.task.reminderMinutesBefore,
             initialSubtasks = item.task.subtasks,
             initialRepeatRule = item.task.repeatRule,
-            confirmButtonText = "Сохранить",
+            confirmButtonText = stringResource(R.string.save),
             onConfirm = { title, desc, priority, deadline, reminder, subtasks, repeat ->
                 viewModel.updateTask(
                     item.category.id,

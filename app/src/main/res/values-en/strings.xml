@@ -157,4 +157,41 @@
     <string name="repeat_short_weekly">every week</string>
     <string name="repeat_short_monthly">every month</string>
     <string name="repeat_short_yearly">every year</string>
+
+    <!-- Smart lists -->
+    <string name="smart_today">Today</string>
+    <string name="smart_scheduled">Scheduled</string>
+    <string name="smart_overdue">Overdue</string>
+    <string name="smart_all">All tasks</string>
+    <string name="smart_empty_title">No tasks in this section</string>
+    <string name="smart_empty_sub">All tasks are done or unscheduled</string>
+
+    <!-- Sort / filter -->
+    <string name="sort_manual">Manual</string>
+    <string name="sort_deadline">By due date</string>
+    <string name="sort_priority">By priority</string>
+    <string name="sort_alphabetical">Alphabetical</string>
+    <string name="hide_completed">Hide completed</string>
+
+    <!-- Search -->
+    <string name="search_tasks_hint">Search tasks…</string>
+    <string name="search_placeholder_title">Find any task</string>
+    <string name="search_placeholder_sub">Search by title, description, subtasks and list name</string>
+    <string name="search_empty_sub">Try changing your query</string>
+    <string name="search_found">Found: %d</string>
+
+    <!-- Calendar -->
+    <string name="prev_month">Previous month</string>
+    <string name="next_month">Next month</string>
+    <string name="today">Today</string>
+    <string name="calendar_no_tasks">No tasks for this day</string>
+    <string-array name="week_days">
+        <item>Mon</item>
+        <item>Tue</item>
+        <item>Wed</item>
+        <item>Thu</item>
+        <item>Fri</item>
+        <item>Sat</item>
+        <item>Sun</item>
+    </string-array>
 </resources>

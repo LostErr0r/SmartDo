@@ -168,4 +168,41 @@
     <string name="repeat_short_weekly">каждую неделю</string>
     <string name="repeat_short_monthly">каждый месяц</string>
     <string name="repeat_short_yearly">каждый год</string>
+
+    <!-- Умные списки -->
+    <string name="smart_today">Сегодня</string>
+    <string name="smart_scheduled">Запланировано</string>
+    <string name="smart_overdue">Просрочено</string>
+    <string name="smart_all">Все задачи</string>
+    <string name="smart_empty_title">Задач в этом разделе нет</string>
+    <string name="smart_empty_sub">Все задачи выполнены или не назначены</string>
+
+    <!-- Сортировка / фильтр -->
+    <string name="sort_manual">Вручную</string>
+    <string name="sort_deadline">По сроку</string>
+    <string name="sort_priority">По приоритету</string>
+    <string name="sort_alphabetical">По алфавиту</string>
+    <string name="hide_completed">Скрывать выполненные</string>
+
+    <!-- Поиск -->
+    <string name="search_tasks_hint">Поиск задач…</string>
+    <string name="search_placeholder_title">Найдите любую задачу</string>
+    <string name="search_placeholder_sub">Поиск по названию, описанию, подзадачам и названию списка</string>
+    <string name="search_empty_sub">Попробуйте изменить запрос</string>
+    <string name="search_found">Найдено: %d</string>
+
+    <!-- Календарь -->
+    <string name="prev_month">Предыдущий месяц</string>
+    <string name="next_month">Следующий месяц</string>
+    <string name="today">Сегодня</string>
+    <string name="calendar_no_tasks">На этот день задач нет</string>
+    <string-array name="week_days">
+        <item>Пн</item>
+        <item>Вт</item>
+        <item>Ср</item>
+        <item>Чт</item>
+        <item>Пт</item>
+        <item>Сб</item>
+        <item>Вс</item>
+    </string-array>
 </resources>

@@ -18,19 +18,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.myapplication.R
 import com.example.myapplication.TaskViewModel
+import java.text.SimpleDateFormat
 import java.util.Calendar
-
-private val monthNames = listOf(
-    "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
-    "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
-)
-private val weekDays = listOf("Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс")
+import java.util.Locale
 
 private fun startOfDay(millis: Long): Long {
     val c = Calendar.getInstance()
@@ -83,6 +82,12 @@ fun CalendarScreen(
     }
     val year = anchor.get(Calendar.YEAR)
     val month = anchor.get(Calendar.MONTH)
+    val monthName = remember(year, month) {
+        SimpleDateFormat("LLLL", Locale.getDefault())
+            .format(anchor.time)
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+    }
+    val weekDays = stringArrayResource(R.array.week_days)
     val daysInMonth = anchor.getActualMaximum(Calendar.DAY_OF_MONTH)
     val firstDow = (anchor.get(Calendar.DAY_OF_WEEK) + 5) % 7 // Пн = 0 … Вс = 6
 
@@ -99,7 +104,7 @@ fun CalendarScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Календарь",
+                        stringResource(R.string.nav_calendar),
                         fontWeight = FontWeight.Bold,
                         fontSize = 22.sp,
                         letterSpacing = (-0.3).sp
@@ -109,7 +114,7 @@ fun CalendarScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Назад",
+                            contentDescription = stringResource(R.string.back),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -135,19 +140,19 @@ fun CalendarScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "${monthNames[month]} $year",
+                    "$monthName $year",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f)
                 )
                 IconButton(onClick = { monthOffset-- }) {
-                    Icon(Icons.Default.ChevronLeft, contentDescription = "Предыдущий месяц")
+                    Icon(Icons.Default.ChevronLeft, contentDescription = stringResource(R.string.prev_month))
                 }
                 if (monthOffset != 0) {
-                    TextButton(onClick = { monthOffset = 0 }) { Text("Сегодня") }
+                    TextButton(onClick = { monthOffset = 0 }) { Text(stringResource(R.string.today)) }
                 }
                 IconButton(onClick = { monthOffset++ }) {
-                    Icon(Icons.Default.ChevronRight, contentDescription = "Следующий месяц")
+                    Icon(Icons.Default.ChevronRight, contentDescription = stringResource(R.string.next_month))
                 }
             }
 
@@ -242,7 +247,7 @@ fun CalendarScreen(
                         Text("🗓️", fontSize = 40.sp)
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            "На этот день задач нет",
+                            stringResource(R.string.calendar_no_tasks),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -270,7 +275,7 @@ fun CalendarScreen(
 
     editingTaskWithCategory?.let { item ->
         TaskDialog(
-            dialogTitle = "Редактировать задачу",
+            dialogTitle = stringResource(R.string.task_edit),
             initialTitle = item.task.title,
             initialDescription = item.task.description,
             initialPriority = item.task.priority,
@@ -278,7 +283,7 @@ fun CalendarScreen(
             initialReminderMinutes = item.task.reminderMinutesBefore,
             initialSubtasks = item.task.subtasks,
             initialRepeatRule = item.task.repeatRule,
-            confirmButtonText = "Сохранить",
+            confirmButtonText = stringResource(R.string.save),
             onConfirm = { title, desc, priority, deadline, reminder, subtasks, repeat ->
                 viewModel.updateTask(
                     item.category.id, item.task.id, title, desc, priority, deadline, reminder, subtasks, repeat

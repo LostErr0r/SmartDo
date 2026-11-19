@@ -17,22 +17,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.myapplication.R
 
 private data class SortChoice(
     val mode: String,
     val title: String,
     val icon: ImageVector,
     val tint: Color
-)
-
-private val sortChoices = listOf(
-    SortChoice("manual", "Вручную", Icons.Default.Reorder, Color(0xFF8E8E93)),
-    SortChoice("deadline", "По сроку", Icons.Default.Schedule, Color(0xFF007AFF)),
-    SortChoice("priority", "По приоритету", Icons.Default.Flag, Color(0xFFFF3B30)),
-    SortChoice("alphabetical", "По алфавиту", Icons.Default.SortByAlpha, Color(0xFF34C759))
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,6 +40,13 @@ fun SortFilterSheet(
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState()
+
+    val sortChoices = listOf(
+        SortChoice("manual", stringResource(R.string.sort_manual), Icons.Default.Reorder, Color(0xFF8E8E93)),
+        SortChoice("deadline", stringResource(R.string.sort_deadline), Icons.Default.Schedule, Color(0xFF007AFF)),
+        SortChoice("priority", stringResource(R.string.sort_priority), Icons.Default.Flag, Color(0xFFFF3B30)),
+        SortChoice("alphabetical", stringResource(R.string.sort_alphabetical), Icons.Default.SortByAlpha, Color(0xFF34C759))
+    )
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -59,7 +61,7 @@ fun SortFilterSheet(
                 .padding(bottom = 28.dp)
         ) {
             Text(
-                "Сортировка",
+                stringResource(R.string.sort),
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp,
                 letterSpacing = (-0.3).sp,
@@ -93,7 +95,7 @@ fun SortFilterSheet(
                     IconCircle(Icons.Default.VisibilityOff, Color(0xFF5856D6))
                     Spacer(Modifier.width(14.dp))
                     Text(
-                        "Скрывать выполненные",
+                        stringResource(R.string.hide_completed),
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -145,7 +147,7 @@ private fun SortOptionRow(
             if (selected) {
                 Icon(
                     Icons.Default.Check,
-                    contentDescription = "Выбрано",
+                    contentDescription = stringResource(R.string.selected),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(22.dp)
                 )

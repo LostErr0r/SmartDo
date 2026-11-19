@@ -548,7 +548,7 @@ fun SmartListCard(
             Spacer(Modifier.height(12.dp))
 
             Text(
-                text = type.title,
+                text = type.localizedTitle(),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
