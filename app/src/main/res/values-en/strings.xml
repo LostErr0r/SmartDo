@@ -292,4 +292,38 @@
         <item>Aquarius</item>
         <item>Pisces</item>
     </string-array>
+
+    <!-- System notifications -->
+    <string name="channel_name">Deadlines and reminders</string>
+    <string name="channel_desc">Reminders about task deadlines and birthdays</string>
+    <string name="notif_sr_today">%1$s Today: %2$s!</string>
+    <string name="notif_sr_tomorrow">%1$s Tomorrow: %2$s!</string>
+    <string name="notif_sr_3days">%1$s In 3 days: %2$s!</string>
+    <string name="notif_sr_week">%1$s In a week: %2$s!</string>
+    <string name="notif_sr_days">%1$s In %2$d d: %3$s</string>
+    <string name="notif_sr_age"> (turning %d)</string>
+    <string name="notif_sr_text">%1$s • %2$s</string>
+    <string name="notif_note_suffix"> • %s</string>
+    <string name="notif_task_now_title">⏰ Task time%s</string>
+    <string name="notif_task_now_text">“%s” needs to be done right now!</string>
+    <string name="notif_task_15_title">⏳ In 15 minutes%s</string>
+    <string name="notif_task_15_text">“%s” deadline is in 15 minutes</string>
+    <string name="notif_task_30_title">⏳ In 30 minutes%s</string>
+    <string name="notif_task_30_text">“%s” deadline is in 30 minutes</string>
+    <string name="notif_task_60_title">⏳ In 1 hour%s</string>
+    <string name="notif_task_60_text">“%s” deadline is in 1 hour</string>
+    <string name="notif_task_1440_title">📅 Deadline tomorrow</string>
+    <string name="notif_task_1440_text">“%1$s” is due tomorrow%2$s</string>
+    <string name="notif_task_other_title">⏰ Task reminder</string>
+    <string name="notif_task_other_text">“%1$s” deadline is approaching%2$s</string>
+
+    <!-- Widget -->
+    <string name="widget_no_events">No upcoming celebrations</string>
+    <string name="widget_all_done">All done ✨</string>
+    <string name="widget_remaining">Left to do</string>
+    <string name="widget_event_fmt">%1$s %2$s: %3$s</string>
+
+    <!-- In-app notification history -->
+    <string name="vm_task_done_title">✅ Task completed</string>
+    <string name="vm_task_done_msg">“%1$s” in “%2$s %3$s”</string>
 </resources>

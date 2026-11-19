@@ -96,13 +96,20 @@ fun SpecialReminder.matchesFilter(filter: ReminderFilter): Boolean {
         ReminderFilter.BIRTHDAY -> emoji in listOf("🎂", "🍰", "🌸") ||
                 title.lowercase().contains("рожд") ||
                 title.lowercase().contains("др") ||
+                title.lowercase().contains("birth") ||
+                title.lowercase().contains("bday") ||
                 year != null
         ReminderFilter.ANNIVERSARY -> emoji in listOf("💍", "❤️") ||
                 title.lowercase().contains("годовщин") ||
-                title.lowercase().contains("свадьб")
+                title.lowercase().contains("свадьб") ||
+                title.lowercase().contains("anniversary") ||
+                title.lowercase().contains("wedding")
         ReminderFilter.CELEBRATION -> emoji in listOf("🎉", "🎁", "🎈", "🌟", "📅") ||
                 title.lowercase().contains("новый год") ||
-                title.lowercase().contains("праздник")
+                title.lowercase().contains("праздник") ||
+                title.lowercase().contains("new year") ||
+                title.lowercase().contains("holiday") ||
+                title.lowercase().contains("party")
     }
 }
 

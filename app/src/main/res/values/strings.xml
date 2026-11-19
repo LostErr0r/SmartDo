@@ -303,4 +303,38 @@
         <item>Водолей</item>
         <item>Рыбы</item>
     </string-array>
+
+    <!-- Системные уведомления -->
+    <string name="channel_name">Дедлайны и напоминания</string>
+    <string name="channel_desc">Напоминания о сроках выполнения задач и днях рождения</string>
+    <string name="notif_sr_today">%1$s Сегодня: %2$s!</string>
+    <string name="notif_sr_tomorrow">%1$s Завтра: %2$s!</string>
+    <string name="notif_sr_3days">%1$s Через 3 дня: %2$s!</string>
+    <string name="notif_sr_week">%1$s Через неделю: %2$s!</string>
+    <string name="notif_sr_days">%1$s Через %2$d дн.: %3$s</string>
+    <string name="notif_sr_age"> (исполняется %d лет)</string>
+    <string name="notif_sr_text">%1$s • %2$s</string>
+    <string name="notif_note_suffix"> • %s</string>
+    <string name="notif_task_now_title">⏰ Время задачи%s</string>
+    <string name="notif_task_now_text">«%s» нужно сделать прямо сейчас!</string>
+    <string name="notif_task_15_title">⏳ Через 15 минут%s</string>
+    <string name="notif_task_15_text">Дедлайн задачи «%s» через 15 минут</string>
+    <string name="notif_task_30_title">⏳ Через 30 минут%s</string>
+    <string name="notif_task_30_text">Дедлайн задачи «%s» через 30 минут</string>
+    <string name="notif_task_60_title">⏳ Через 1 час%s</string>
+    <string name="notif_task_60_text">Дедлайн задачи «%s» через 1 час</string>
+    <string name="notif_task_1440_title">📅 Завтра дедлайн</string>
+    <string name="notif_task_1440_text">«%1$s» нужно выполнить завтра%2$s</string>
+    <string name="notif_task_other_title">⏰ Напоминание о задаче</string>
+    <string name="notif_task_other_text">Дедлайн «%1$s» приближается%2$s</string>
+
+    <!-- Виджет -->
+    <string name="widget_no_events">Нет ближайших праздников</string>
+    <string name="widget_all_done">Все дела выполнены ✨</string>
+    <string name="widget_remaining">Осталось выполнить</string>
+    <string name="widget_event_fmt">%1$s %2$s: %3$s</string>
+
+    <!-- История уведомлений (в приложении) -->
+    <string name="vm_task_done_title">✅ Задача выполнена</string>
+    <string name="vm_task_done_msg">«%1$s» в «%2$s %3$s»</string>
 </resources>

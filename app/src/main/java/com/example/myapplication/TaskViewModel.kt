@@ -1,6 +1,7 @@
 package com.example.myapplication
 
 import android.app.Application
+import android.content.Context
 import android.media.AudioManager
 import android.media.ToneGenerator
 import android.view.HapticFeedbackConstants
@@ -65,6 +66,9 @@ private fun Task.nextOccurrence(): Task? {
 class TaskViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = TaskRepository(application.applicationContext)
+
+    /** Контекст с применённой пользовательской локалью — для строк, создаваемых вне Compose. */
+    private val l10n: Context get() = LocaleHelper.wrap(getApplication())
 
     private val _appData = MutableStateFlow(AppData())
     val appData: StateFlow<AppData> = _appData.asStateFlow()
@@ -267,8 +271,8 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
             if (toggledTask?.isDone == true) {
                 cancelTaskNotification(getApplication(), taskId)
                 val notif = AppNotification(
-                    title = "✅ Задача выполнена",
-                    message = "«${toggledTask!!.title}» в «$catEmoji $catName»"
+                    title = l10n.getString(R.string.vm_task_done_title),
+                    message = l10n.getString(R.string.vm_task_done_msg, toggledTask!!.title, catEmoji, catName)
                 )
                 val notifs = listOf(notif) + appData.value.notifications.take(99)
                 // Повтор: создаём следующий экземпляр в той же категории.
@@ -365,8 +369,8 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
             if (toggledTask?.isDone == true) {
                 cancelTaskNotification(getApplication(), taskId)
                 val notif = AppNotification(
-                    title = "✅ Задача выполнена",
-                    message = "«${toggledTask!!.title}» в «$catEmoji $catName»"
+                    title = l10n.getString(R.string.vm_task_done_title),
+                    message = l10n.getString(R.string.vm_task_done_msg, toggledTask!!.title, catEmoji, catName)
                 )
                 val notifs = listOf(notif) + appData.value.notifications.take(99)
                 val spawn = toggledTask!!.nextOccurrence()

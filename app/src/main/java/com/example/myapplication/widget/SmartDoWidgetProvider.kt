@@ -7,6 +7,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
+import com.example.myapplication.LocaleHelper
 import com.example.myapplication.MainActivity
 import com.example.myapplication.R
 import com.example.myapplication.data.TaskRepository
@@ -27,8 +28,9 @@ class SmartDoWidgetProvider : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
+        val lctx = LocaleHelper.wrap(context)
         val repo = TaskRepository(context)
-        val dateFormatter = SimpleDateFormat("d MMMM", Locale("ru"))
+        val dateFormatter = SimpleDateFormat("d MMMM", Locale.getDefault())
         val todayStr = dateFormatter.format(Date())
 
         CoroutineScope(Dispatchers.IO).launch {
@@ -49,13 +51,13 @@ class SmartDoWidgetProvider : AppWidgetProvider() {
             val upcomingText = if (upcomingReminder != null) {
                 val days = getDaysUntilEvent(upcomingReminder.day, upcomingReminder.month)
                 val dayStr = when (days) {
-                    0 -> "Сегодня! 🎉"
-                    1 -> "Завтра"
-                    else -> "через $days дн."
+                    0 -> lctx.getString(R.string.badge_today)
+                    1 -> lctx.getString(R.string.badge_tomorrow)
+                    else -> lctx.getString(R.string.badge_in_days, days)
                 }
-                "${upcomingReminder.emoji} $dayStr: ${upcomingReminder.title}"
+                lctx.getString(R.string.widget_event_fmt, upcomingReminder.emoji, dayStr, upcomingReminder.title)
             } else {
-                "Нет ближайших праздников"
+                lctx.getString(R.string.widget_no_events)
             }
 
             for (widgetId in appWidgetIds) {
@@ -64,7 +66,7 @@ class SmartDoWidgetProvider : AppWidgetProvider() {
                     setTextViewText(R.id.widget_tasks_count, "$todayCount")
                     setTextViewText(
                         R.id.widget_tasks_subtext,
-                        if (todayCount == 0) "Все дела выполнены ✨" else "Осталось выполнить"
+                        if (todayCount == 0) lctx.getString(R.string.widget_all_done) else lctx.getString(R.string.widget_remaining)
                     )
                     setTextViewText(R.id.widget_events_text, upcomingText)
 

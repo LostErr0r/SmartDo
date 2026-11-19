@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import com.example.myapplication.LocaleHelper
 import com.example.myapplication.MainActivity
 import com.example.myapplication.R
 import com.example.myapplication.data.SpecialReminder
@@ -51,6 +52,7 @@ class NotificationReceiver : BroadcastReceiver() {
     }
 
     private fun handleSpecialReminder(context: Context, intent: Intent) {
+        val lctx = LocaleHelper.wrap(context)
         val reminderId = intent.getLongExtra(EXTRA_REMINDER_ID, 0L)
         val title = intent.getStringExtra(EXTRA_TASK_TITLE) ?: return
         val emoji = intent.getStringExtra(EXTRA_EMOJI) ?: "🎂"
@@ -60,27 +62,23 @@ class NotificationReceiver : BroadcastReceiver() {
         val year = intent.getIntExtra(EXTRA_YEAR, -1)
         val notes = intent.getStringExtra(EXTRA_NOTES) ?: ""
 
-        val monthNames = listOf(
-            "января", "февраля", "марта", "апреля", "мая", "июня",
-            "июля", "августа", "сентября", "октября", "ноября", "декабря"
-        )
-        val monthStr = monthNames.getOrElse(month - 1) { "" }
+        val monthStr = lctx.resources.getStringArray(R.array.month_names_genitive).getOrElse(month - 1) { "" }
         val dateStr = "$day $monthStr"
 
         val notifTitle = when (advanceDays) {
-            0 -> "$emoji Сегодня: $title!"
-            1 -> "$emoji Завтра: $title!"
-            3 -> "$emoji Через 3 дня: $title!"
-            7 -> "$emoji Через неделю: $title!"
-            else -> "$emoji Через $advanceDays дн.: $title"
+            0 -> lctx.getString(R.string.notif_sr_today, emoji, title)
+            1 -> lctx.getString(R.string.notif_sr_tomorrow, emoji, title)
+            3 -> lctx.getString(R.string.notif_sr_3days, emoji, title)
+            7 -> lctx.getString(R.string.notif_sr_week, emoji, title)
+            else -> lctx.getString(R.string.notif_sr_days, emoji, advanceDays, title)
         }
 
         val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-        val ageStr = if (year > 0) " (исполняется ${currentYear - year} лет)" else ""
-        val notesStr = if (notes.isNotBlank()) " • $notes" else ""
-        val notifText = "$title • $dateStr$ageStr$notesStr"
+        val ageStr = if (year > 0) lctx.getString(R.string.notif_sr_age, currentYear - year) else ""
+        val notesStr = if (notes.isNotBlank()) lctx.getString(R.string.notif_note_suffix, notes) else ""
+        val notifText = lctx.getString(R.string.notif_sr_text, title, dateStr) + ageStr + notesStr
 
-        showNotification(context, notifTitle, notifText, ("special_$reminderId").hashCode())
+        showNotification(lctx, notifTitle, notifText, ("special_$reminderId").hashCode())
 
         // Записываем уведомление в историю и перепланируем на следующий год
         val pendingResult = goAsync()
@@ -100,6 +98,7 @@ class NotificationReceiver : BroadcastReceiver() {
     }
 
     private fun handleTaskDeadline(context: Context, intent: Intent) {
+        val lctx = LocaleHelper.wrap(context)
         val title = intent.getStringExtra(EXTRA_TASK_TITLE) ?: return
         val minutesBefore = intent.getIntExtra(EXTRA_MINUTES_BEFORE, 0)
         val deadlineMs = intent.getLongExtra(EXTRA_DEADLINE_MS, 0L)
@@ -108,15 +107,15 @@ class NotificationReceiver : BroadcastReceiver() {
         val deadlineTimeStr = if (deadlineMs > 0) " (${timeFormatter.format(Date(deadlineMs))})" else ""
 
         val (notifTitle, notifText) = when (minutesBefore) {
-            0 -> "⏰ Время задачи$deadlineTimeStr" to "«$title» нужно сделать прямо сейчас!"
-            15 -> "⏳ Через 15 минут$deadlineTimeStr" to "Дедлайн задачи «$title» через 15 минут"
-            30 -> "⏳ Через 30 минут$deadlineTimeStr" to "Дедлайн задачи «$title» через 30 минут"
-            60 -> "⏳ Через 1 час$deadlineTimeStr" to "Дедлайн задачи «$title» через 1 час"
-            1440 -> "📅 Завтра дедлайн" to "«$title» нужно выполнить завтра$deadlineTimeStr"
-            else -> "⏰ Напоминание о задаче" to "Дедлайн «$title» приближается$deadlineTimeStr"
+            0 -> lctx.getString(R.string.notif_task_now_title, deadlineTimeStr) to lctx.getString(R.string.notif_task_now_text, title)
+            15 -> lctx.getString(R.string.notif_task_15_title, deadlineTimeStr) to lctx.getString(R.string.notif_task_15_text, title)
+            30 -> lctx.getString(R.string.notif_task_30_title, deadlineTimeStr) to lctx.getString(R.string.notif_task_30_text, title)
+            60 -> lctx.getString(R.string.notif_task_60_title, deadlineTimeStr) to lctx.getString(R.string.notif_task_60_text, title)
+            1440 -> lctx.getString(R.string.notif_task_1440_title) to lctx.getString(R.string.notif_task_1440_text, title, deadlineTimeStr)
+            else -> lctx.getString(R.string.notif_task_other_title) to lctx.getString(R.string.notif_task_other_text, title, deadlineTimeStr)
         }
 
-        showNotification(context, notifTitle, notifText, title.hashCode())
+        showNotification(lctx, notifTitle, notifText, title.hashCode())
 
         // Сохраняем уведомление в историю внутри приложения
         val pendingResult = goAsync()
@@ -132,12 +131,13 @@ class NotificationReceiver : BroadcastReceiver() {
 }
 
 fun createNotificationChannel(context: Context) {
+    val lctx = LocaleHelper.wrap(context)
     val channel = NotificationChannel(
         CHANNEL_ID,
-        "Дедлайны и напоминания",
+        lctx.getString(R.string.channel_name),
         NotificationManager.IMPORTANCE_HIGH
     ).apply {
-        description = "Напоминания о сроках выполнения задач и днях рождения"
+        description = lctx.getString(R.string.channel_desc)
         enableVibration(true)
     }
     val manager = context.getSystemService(NotificationManager::class.java)
