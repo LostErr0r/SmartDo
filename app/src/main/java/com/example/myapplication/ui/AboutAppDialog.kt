@@ -10,10 +10,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.myapplication.R
 
 @Composable
 fun AboutAppDialog(onDismiss: () -> Unit) {
@@ -53,7 +55,7 @@ fun AboutAppDialog(onDismiss: () -> Unit) {
                 )
 
                 Text(
-                    "Умные заметки, задачи и напоминания",
+                    stringResource(R.string.about_tagline),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
@@ -72,25 +74,25 @@ fun AboutAppDialog(onDismiss: () -> Unit) {
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Text(
-                            "✨ Возможности SmartDo v2.0:",
+                            stringResource(R.string.about_features_title),
                             fontWeight = FontWeight.SemiBold,
                             style = MaterialTheme.typography.bodyMedium
                         )
-                        Text("• Дизайн в минималистичном стиле Apple (iOS)", style = MaterialTheme.typography.bodySmall)
-                        Text("• Вложенные чек-листы и подзадачи с прогресс-баром", style = MaterialTheme.typography.bodySmall)
-                        Text("• Приоритеты задач с цветными флагами", style = MaterialTheme.typography.bodySmall)
-                        Text("• Категории задач с выбором кастомных иконок", style = MaterialTheme.typography.bodySmall)
-                        Text("• Точные напоминания, будильники и дедлайны", style = MaterialTheme.typography.bodySmall)
-                        Text("• Памятные даты и дни рождения с расчётом знаков зодиака", style = MaterialTheme.typography.bodySmall)
-                        Text("• Центр уведомлений и безопасный архив", style = MaterialTheme.typography.bodySmall)
-                        Text("• Светлая и глубокая тёмная темы", style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(R.string.about_feature_design), style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(R.string.about_feature_checklists), style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(R.string.about_feature_priorities), style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(R.string.about_feature_categories), style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(R.string.about_feature_reminders), style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(R.string.about_feature_dates), style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(R.string.about_feature_notifications), style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(R.string.about_feature_themes), style = MaterialTheme.typography.bodySmall)
                     }
                 }
 
                 Spacer(Modifier.height(12.dp))
 
                 Text(
-                    "Версия 2.0.0",
+                    stringResource(R.string.about_version),
                     fontSize = 11.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                 )
@@ -102,7 +104,7 @@ fun AboutAppDialog(onDismiss: () -> Unit) {
                 shape = RoundedCornerShape(14.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Отлично", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.about_ok), fontWeight = FontWeight.SemiBold)
             }
         }
     )

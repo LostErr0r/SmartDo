@@ -57,4 +57,18 @@
     <string name="restore_ok">Данные успешно восстановлены! 🎉</string>
     <string name="restore_bad_format">Ошибка: неверный формат данных JSON</string>
     <string name="read_failed">Не удалось прочитать файл</string>
+
+    <!-- О приложении -->
+    <string name="about_tagline">Умные заметки, задачи и напоминания</string>
+    <string name="about_features_title">✨ Возможности SmartDo v2.0:</string>
+    <string name="about_feature_design">• Дизайн в минималистичном стиле Apple (iOS)</string>
+    <string name="about_feature_checklists">• Вложенные чек-листы и подзадачи с прогресс-баром</string>
+    <string name="about_feature_priorities">• Приоритеты задач с цветными флагами</string>
+    <string name="about_feature_categories">• Категории задач с выбором кастомных иконок</string>
+    <string name="about_feature_reminders">• Точные напоминания, будильники и дедлайны</string>
+    <string name="about_feature_dates">• Памятные даты и дни рождения с расчётом знаков зодиака</string>
+    <string name="about_feature_notifications">• Центр уведомлений и безопасный архив</string>
+    <string name="about_feature_themes">• Светлая и глубокая тёмная темы</string>
+    <string name="about_version">Версия 2.0.0</string>
+    <string name="about_ok">Отлично</string>
 </resources>

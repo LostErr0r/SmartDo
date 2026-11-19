@@ -15,9 +15,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.myapplication.R
 import com.example.myapplication.TaskViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -41,9 +43,9 @@ fun DataTransferScreen(
                 context.contentResolver.openOutputStream(uri)?.use { stream ->
                     stream.write(json.toByteArray())
                 }
-                Toast.makeText(context, "Резервная копия сохранена ✅", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.backup_saved), Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
-                Toast.makeText(context, "Не удалось сохранить файл", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.backup_save_failed), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -58,12 +60,12 @@ fun DataTransferScreen(
                     ?.bufferedReader()
                     ?.use { it.readText() }
                 if (!text.isNullOrBlank() && viewModel.importDataJson(text.trim())) {
-                    Toast.makeText(context, "Данные успешно восстановлены! 🎉", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.restore_ok), Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(context, "Ошибка: неверный формат данных JSON", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.restore_bad_format), Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
-                Toast.makeText(context, "Не удалось прочитать файл", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.read_failed), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -74,7 +76,7 @@ fun DataTransferScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Перенос данных",
+                        stringResource(R.string.data_title),
                         fontWeight = FontWeight.Bold,
                         fontSize = 22.sp,
                         letterSpacing = (-0.3).sp
@@ -84,7 +86,7 @@ fun DataTransferScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Назад",
+                            contentDescription = stringResource(R.string.back),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -116,7 +118,7 @@ fun DataTransferScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
-                        "Сохраните все ваши данные в .json-файл или восстановите их из ранее сохранённой копии.",
+                        stringResource(R.string.data_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -131,7 +133,7 @@ fun DataTransferScreen(
                     ) {
                         Icon(Icons.Default.SaveAlt, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text("Экспорт в файл", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.export_file), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                     }
 
                     OutlinedButton(
@@ -143,13 +145,13 @@ fun DataTransferScreen(
                     ) {
                         Icon(Icons.Default.FolderOpen, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text("Импорт из файла", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.import_file), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
 
             Text(
-                "Импорт заменит текущие данные приложения данными из файла.",
+                stringResource(R.string.data_warn),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 4.dp)

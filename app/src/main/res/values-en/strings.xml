@@ -48,4 +48,18 @@
     <string name="restore_ok">Data restored successfully! 🎉</string>
     <string name="restore_bad_format">Error: invalid JSON data format</string>
     <string name="read_failed">Couldn\'t read the file</string>
+
+    <!-- About -->
+    <string name="about_tagline">Smart notes, tasks and reminders</string>
+    <string name="about_features_title">✨ SmartDo v2.0 features:</string>
+    <string name="about_feature_design">• Minimalist Apple (iOS) style design</string>
+    <string name="about_feature_checklists">• Nested checklists and subtasks with a progress bar</string>
+    <string name="about_feature_priorities">• Task priorities with colored flags</string>
+    <string name="about_feature_categories">• Task categories with custom icons</string>
+    <string name="about_feature_reminders">• Precise reminders, alarms and deadlines</string>
+    <string name="about_feature_dates">• Memorable dates and birthdays with zodiac signs</string>
+    <string name="about_feature_notifications">• Notification center and a safe archive</string>
+    <string name="about_feature_themes">• Light and deep dark themes</string>
+    <string name="about_version">Version 2.0.0</string>
+    <string name="about_ok">Great</string>
 </resources>

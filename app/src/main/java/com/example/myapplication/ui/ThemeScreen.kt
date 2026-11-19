@@ -15,10 +15,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.myapplication.R
 import com.example.myapplication.TaskViewModel
 
 private data class ThemeOption(
@@ -41,22 +43,22 @@ fun ThemeScreen(
     val options = listOf(
         ThemeOption(
             mode = "system",
-            title = "Системная",
-            subtitle = "Как в настройках телефона",
+            title = stringResource(R.string.theme_system),
+            subtitle = stringResource(R.string.theme_system_sub),
             icon = Icons.Default.PhoneAndroid,
             iconTint = Color(0xFF8E8E93)
         ),
         ThemeOption(
             mode = "light",
-            title = "Светлая",
-            subtitle = "Всегда светлое оформление",
+            title = stringResource(R.string.theme_light),
+            subtitle = stringResource(R.string.theme_light_sub),
             icon = Icons.Default.LightMode,
             iconTint = Color(0xFFFF9500)
         ),
         ThemeOption(
             mode = "dark",
-            title = "Тёмная",
-            subtitle = "Всегда тёмное оформление",
+            title = stringResource(R.string.theme_dark),
+            subtitle = stringResource(R.string.theme_dark_sub),
             icon = Icons.Default.DarkMode,
             iconTint = Color(0xFF5856D6)
         )
@@ -68,7 +70,7 @@ fun ThemeScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Изменить тему",
+                        stringResource(R.string.theme_title),
                         fontWeight = FontWeight.Bold,
                         fontSize = 22.sp,
                         letterSpacing = (-0.3).sp
@@ -78,7 +80,7 @@ fun ThemeScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Назад",
+                            contentDescription = stringResource(R.string.back),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -160,7 +162,7 @@ private fun ThemeOptionRow(
         if (selected) {
             Icon(
                 Icons.Default.Check,
-                contentDescription = "Выбрано",
+                contentDescription = stringResource(R.string.selected),
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(22.dp)
             )

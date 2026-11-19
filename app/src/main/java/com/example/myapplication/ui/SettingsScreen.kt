@@ -16,9 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.myapplication.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,7 +38,7 @@ fun SettingsScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Настройки",
+                        stringResource(R.string.settings_title),
                         fontWeight = FontWeight.Bold,
                         fontSize = 22.sp,
                         letterSpacing = (-0.3).sp
@@ -46,7 +48,7 @@ fun SettingsScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Назад",
+                            contentDescription = stringResource(R.string.back),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -76,8 +78,8 @@ fun SettingsScreen(
                     SettingsRow(
                         icon = Icons.Default.Tune,
                         iconTint = Color(0xFFFF9500),
-                        title = "Приложение",
-                        subtitle = "Звук, вибрация и другие функции",
+                        title = stringResource(R.string.settings_app),
+                        subtitle = stringResource(R.string.settings_app_sub),
                         onClick = onAppSettingsClick
                     )
                     HorizontalDivider(
@@ -87,8 +89,8 @@ fun SettingsScreen(
                     SettingsRow(
                         icon = Icons.Default.Palette,
                         iconTint = Color(0xFF5856D6),
-                        title = "Изменить тему",
-                        subtitle = "Оформление приложения",
+                        title = stringResource(R.string.settings_theme),
+                        subtitle = stringResource(R.string.settings_theme_sub),
                         onClick = onThemeClick
                     )
                     HorizontalDivider(
@@ -98,8 +100,8 @@ fun SettingsScreen(
                     SettingsRow(
                         icon = Icons.Default.ImportExport,
                         iconTint = Color(0xFF34C759),
-                        title = "Перенос данных",
-                        subtitle = "Импорт и экспорт заметок",
+                        title = stringResource(R.string.settings_data),
+                        subtitle = stringResource(R.string.settings_data_sub),
                         onClick = onDataTransferClick
                     )
                     HorizontalDivider(
@@ -109,8 +111,8 @@ fun SettingsScreen(
                     SettingsRow(
                         icon = Icons.Default.Info,
                         iconTint = Color(0xFF007AFF),
-                        title = "О приложении",
-                        subtitle = "Версия и возможности",
+                        title = stringResource(R.string.settings_about),
+                        subtitle = stringResource(R.string.settings_about_sub),
                         onClick = { showAboutDialog = true }
                     )
                 }
