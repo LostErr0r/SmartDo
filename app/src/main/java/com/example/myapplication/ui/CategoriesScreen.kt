@@ -203,7 +203,7 @@ fun CategoriesContent(
                                 .padding(horizontal = 6.dp, vertical = 4.dp)
                         ) {
                             Text(
-                                "Списки",
+                                stringResource(R.string.nav_lists),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 28.sp,
                                 letterSpacing = (-0.5).sp

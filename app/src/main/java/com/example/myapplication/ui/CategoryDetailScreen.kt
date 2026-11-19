@@ -146,14 +146,6 @@ fun List<Task>.sortedByMode(mode: String): List<Task> = when (mode) {
     else -> this
 }
 
-/** Человекочитаемое название режима сортировки. */
-fun sortModeLabel(mode: String): String = when (mode) {
-    "deadline" -> "По сроку"
-    "priority" -> "По приоритету"
-    "alphabetical" -> "По алфавиту"
-    else -> "Вручную"
-}
-
 /** Короткая подпись повтора для карточки задачи. */
 @Composable
 fun repeatLabelShort(rule: String): String = when (rule) {
